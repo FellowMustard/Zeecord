@@ -15,10 +15,4 @@ app.use("/api/testing123", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../client", "public")));
-  app.get("/*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../client", "public", "index.html"));
-  });
-}
 app.listen(PORT, console.log(`PORT ${PORT} is working`.green.bold));
