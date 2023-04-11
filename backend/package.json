@@ -1,7 +1,7 @@
 {
   "name": "zeecord_backend",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "index.js",
   "license": "MIT",
   "dependencies": {
     "colors": "^1.4.0",
