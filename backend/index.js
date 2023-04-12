@@ -11,6 +11,7 @@ app.use(cors(corsConfig));
 
 app.use(express.json());
 app.use("/api/testing", (req, res) => {
+  console.log(req.headers.origin);
   res.status(200).json({ value: "important123" });
 });
 app.use("/api/testing123", (req, res) => {
