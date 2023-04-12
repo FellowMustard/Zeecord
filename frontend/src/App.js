@@ -1,15 +1,11 @@
-import axios from "axios";
-import { testingUrl } from "./api/fetchLinks";
+import { useState } from "react";
+import Home from "./Pages/Home";
+
 function App() {
-  const handleButton = async () => {
-    const { data } = await axios.get(testingUrl);
-    console.log(data);
-  };
   return (
-    <div className="App">
-      haha
-      <button onClick={() => handleButton()}>ping me!</button>
-    </div>
+    <>
+      <Home />
+    </>
   );
 }
 
