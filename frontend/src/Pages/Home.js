@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import DateTimePicker from "../Components/dateTimePicker";
 
 import axios from "axios";
+import { registerUrl } from "../api/fetchLinks";
 
 function Home() {
   const [isLogin, setIsLogin] = useState(false);
@@ -124,21 +125,24 @@ function Register({ changePagesToLogin }) {
       return;
     }
 
-    // await axios
-    //   .post(registerUrl, {
-    //     username,
-    //     email,
-    //     password,
-    //     dob,
-    //   })
-    //   .then((response) => console.log(response))
-    //   .catch((error) => {
-    //     setErrAnimation(true);
-    //     setErrMsg(error.response.data.message);
-    //     if (error.response.status === 409) {
-    //       emailRef.current.focus();
-    //     }
-    //   });
+    await axios
+      .post(registerUrl, {
+        username,
+        email,
+        password,
+        dob,
+      })
+      .then((response) => {
+        console.log(response);
+        alert(response.data.message);
+      })
+      .catch((error) => {
+        setErrAnimation(true);
+        setErrMsg(error.response.data.message);
+        if (error.response.status === 409) {
+          emailRef.current.focus();
+        }
+      });
   };
 
   useEffect(() => {
