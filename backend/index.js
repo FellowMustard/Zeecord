@@ -2,8 +2,12 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("path");
 const colors = require("colors");
+const cors = require("cors");
+const corsConfig = require("./config/corsConfig");
 
 const app = express();
+dotenv.config();
+app.use(cors(corsConfig));
 
 app.use(express.json());
 app.use("/api/testing", (req, res) => {
