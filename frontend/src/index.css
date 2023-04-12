@@ -113,6 +113,9 @@ button {
 .cred-input.select {
   width: 100%;
 }
+.red-font {
+  color: #ff0000;
+}
 .cred-tab .instruction {
   z-index: 100;
   border-radius: 2px;
@@ -197,6 +200,10 @@ input[type="checkbox"].checkmark {
 .login-button:hover {
   background-color: #4752c4;
 }
+.card-smalltext {
+  margin: 10px 0 0 0;
+  color: #b9bbbe;
+}
 .welcome-hyperlink {
   font-weight: 400;
   font-size: 14px;
@@ -208,7 +215,7 @@ input[type="checkbox"].checkmark {
 }
 .github-href {
   color: #fff;
-  position: absolute;
+  position: fixed;
   bottom: 0;
   right: 0;
   font-size: 3rem;
@@ -218,6 +225,7 @@ input[type="checkbox"].checkmark {
   align-items: center;
   cursor: pointer;
   transition: all 0.5s ease;
+  z-index: 999;
 }
 .github-href .logo {
   z-index: 999;

@@ -1,23 +1,42 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useMemo,
+  React,
+} from "react";
 import MovingBg from "../Components/MovingBg";
 import { IoMdInformationCircle } from "react-icons/io";
 import { GiBirdTwitter } from "react-icons/gi";
 import { AiFillGithub, AiFillWarning } from "react-icons/ai";
 import { motion, AnimatePresence } from "framer-motion";
 import DateTimePicker from "../Components/dateTimePicker";
-
 import axios from "axios";
-import { registerUrl } from "../api/fetchLinks";
+import { loginUrl, registerUrl } from "../api/fetchLinks";
 
 function Home() {
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
 
-  const changePagesToLogin = (action) => {
+  const memoLink = useMemo(() => {
+    return (
+      <a className="github-href">
+        {console.log("rendered logo")}
+        <AiFillGithub className="logo" />
+      </a>
+    );
+  });
+
+  const memoBg = useMemo(() => {
+    return <MovingBg />;
+  });
+  const changePagesToLogin = useCallback((action) => {
     setIsLogin(action);
-  };
+  }, []);
+
   return (
     <main className="main-bg">
-      <MovingBg />
+      {memoBg}
       <span className="app-title">
         <GiBirdTwitter className="logo" />
         <span>Zeecord</span>
@@ -29,16 +48,57 @@ function Home() {
           <Register key="register" changePagesToLogin={changePagesToLogin} />
         )}
       </AnimatePresence>
-
-      <a className="github-href">
-        <AiFillGithub className="logo" />
-      </a>
+      {memoLink}
     </main>
   );
 }
 
-function Login() {
-  const [errMsg, useErrMsg] = useState("");
+function Login({ changePagesToLogin }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [errMsg, setErrMsg] = useState("");
+  const [errAnimation, setErrAnimation] = useState(false);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      setErrAnimation(true);
+      setErrMsg("Email Can't be Empty!");
+      return;
+    }
+    if (!password) {
+      setErrAnimation(true);
+      setErrMsg("Password Can't be Empty!");
+      return;
+    }
+    await axios
+      .post(loginUrl, {
+        email,
+        password,
+      })
+      .then((response) => {
+        console.log(response);
+        alert(
+          `User ${response.data.username} Logged In, with Token: ${response.data.accessToken}`
+        );
+      })
+      .catch((error) => {
+        setErrAnimation(true);
+        setErrMsg(error.response.data.message);
+      });
+  };
+
+  useEffect(() => {
+    if (errAnimation) {
+      const timeoutId = setTimeout(() => {
+        setErrAnimation(false);
+      }, 2500);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [errAnimation]);
+
   return (
     <motion.form
       exit={{ opacity: 0, y: -200, transition: { duration: 0.2 } }}
@@ -53,14 +113,72 @@ function Login() {
           delay: 0.3,
           duration: 0.4,
           type: "spring",
-          stiffness: 800,
+          stiffness: 1000,
           damping: 30,
         },
       }}
+      autoComplete="off"
+      onSubmit={(e) => {
+        handleLogin(e);
+      }}
+      noValidate
       className="login-card"
     >
       <h4 className="card-title">Welcome back!</h4>
       <p className="card-subtitle">We're so exited to see you again</p>
+      <div className="cred-tab">
+        <p>
+          EMAIL OR PHONE NUMBER <span className="red-font">*</span>
+        </p>
+        <input
+          type="text"
+          onChange={(e) => setEmail(e.target.value)}
+          className="cred-input"
+          name="email"
+        ></input>
+      </div>
+      <div className="cred-tab">
+        <p>
+          PASSWORD <span className="red-font">*</span>
+        </p>
+        <input
+          type="password"
+          onChange={(e) => setPassword(e.target.value)}
+          className="cred-input"
+          name="password"
+        ></input>
+      </div>
+      <div className="cred-tab">
+        <div className="error-section">
+          {errMsg && errAnimation ? (
+            <motion.div
+              animate={{ x: [-10, 10, -10, 10, -5, 5, -2, 2, 0] }}
+              transition={{ duration: 0.5 }}
+              className="error-box"
+            >
+              <AiFillWarning className="logo" />
+              <span>{errMsg}</span>
+            </motion.div>
+          ) : (
+            ""
+          )}
+        </div>
+      </div>
+      <div className="cred-tab">
+        <button type="submit" className="login-button">
+          Continue
+        </button>
+      </div>
+      <p className="card-smalltext">
+        Need an account?
+        <span
+          className="welcome-hyperlink"
+          onClick={() => changePagesToLogin(false)}
+          style={{ marginLeft: "5px" }}
+        >
+          Register
+        </span>
+      </p>
     </motion.form>
   );
 }
@@ -184,7 +302,7 @@ function Register({ changePagesToLogin }) {
           delay: 0.3,
           duration: 0.4,
           type: "spring",
-          stiffness: 800,
+          stiffness: 1000,
           damping: 30,
         },
       }}

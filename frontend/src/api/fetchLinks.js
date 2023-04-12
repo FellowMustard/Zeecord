@@ -5,5 +5,6 @@ const baseUrl =
 
 const testingUrl = baseUrl + "api/testing";
 const registerUrl = baseUrl + "api/user";
+const loginUrl = baseUrl + "api/auth";
 
-export { testingUrl, registerUrl };
+export { testingUrl, registerUrl, loginUrl };
