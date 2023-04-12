@@ -20,7 +20,11 @@ function Home() {
 
   const memoLink = useMemo(() => {
     return (
-      <a className="github-href">
+      <a
+        target="_blank"
+        className="github-href"
+        href="https://github.com/FellowMustard/zeecord"
+      >
         {console.log("rendered logo")}
         <AiFillGithub className="logo" />
       </a>
