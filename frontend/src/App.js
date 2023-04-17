@@ -1,10 +1,15 @@
 import { useState } from "react";
 import Home from "./Pages/Home";
+import Channel from "./Pages/Channel";
+import { Route, Routes, Navigate } from "react-router-dom";
 
 function App() {
   return (
     <>
-      <Home />
+      <Routes>
+        <Route path="/" element={<Home />} exact></Route>
+        <Route exact path="/channel" element={<Channel />} />
+      </Routes>
     </>
   );
 }

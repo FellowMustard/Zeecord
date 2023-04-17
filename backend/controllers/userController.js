@@ -2,9 +2,13 @@ const User = require("../models/User");
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const { randomizeCode } = require("../middleware/randomizeCode");
+const {
+  createAccessToken,
+  createRefreshToken,
+} = require("../middleware/generateToken");
 
 const getUserProfile = asyncHandler(async (req, res) => {
-  const id = "";
+  const id = req.id;
   const user = await User.findById(id).select("-password");
   if (!user) {
     return res.status(400).json({ message: "No User Found" });
@@ -34,7 +38,16 @@ const registerUser = asyncHandler(async (req, res) => {
   const user = await User.create(userObject);
 
   if (user) {
-    return res.status(201).json({ message: `User ${username} Created!` });
+    const accessToken = createAccessToken(user._id);
+    const refreshToken = createRefreshToken(user._id);
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: 2 * 24 * 60 * 60 * 1000, //2 days
+    });
+
+    res.json({ accessToken, username: user.username });
   } else {
     return res.status(400).json({ message: "Invalid User Data!" });
   }

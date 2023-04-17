@@ -12,11 +12,15 @@ import { GiBirdTwitter } from "react-icons/gi";
 import { AiFillGithub, AiFillWarning } from "react-icons/ai";
 import { motion, AnimatePresence } from "framer-motion";
 import DateTimePicker from "../Components/dateTimePicker";
-import axios from "axios";
-import { loginUrl, registerUrl } from "../api/fetchLinks";
+import { loginUrl, registerUrl, refreshUrl, axios } from "../api/fetchLinks";
+import { GetToken } from "../Context/userProvider";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
+  const [loading, setLoading] = useState(true);
+  const [token, setToken] = GetToken();
   const [isLogin, setIsLogin] = useState(true);
+  const Navigate = useNavigate();
 
   const memoLink = useMemo(() => {
     return (
@@ -25,7 +29,6 @@ function Home() {
         className="github-href"
         href="https://github.com/FellowMustard/zeecord"
       >
-        {console.log("rendered logo")}
         <AiFillGithub className="logo" />
       </a>
     );
@@ -34,35 +37,55 @@ function Home() {
   const memoBg = useMemo(() => {
     return <MovingBg />;
   });
+
   const changePagesToLogin = useCallback((action) => {
     setIsLogin(action);
   }, []);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data } = await axios.get(refreshUrl + "?checker=true");
+
+      if (data) {
+        setToken(data.accessToken);
+        Navigate("/channel");
+      }
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
+
   return (
-    <main className="main-bg">
-      {memoBg}
-      <span className="app-title">
-        <GiBirdTwitter className="logo" />
-        <span>Zeecord</span>
-      </span>
-      <AnimatePresence>
-        {isLogin ? (
-          <Login key="login" changePagesToLogin={changePagesToLogin} />
-        ) : (
-          <Register key="register" changePagesToLogin={changePagesToLogin} />
-        )}
-      </AnimatePresence>
-      {memoLink}
-    </main>
+    !loading && (
+      <main className="main-bg">
+        {memoBg}
+        <span className="app-title">
+          <GiBirdTwitter className="logo" />
+          <span>Zeecord</span>
+        </span>
+        <AnimatePresence>
+          {isLogin ? (
+            <Login key="login" changePagesToLogin={changePagesToLogin} />
+          ) : (
+            <Register key="register" changePagesToLogin={changePagesToLogin} />
+          )}
+        </AnimatePresence>
+        {memoLink}
+      </main>
+    )
   );
 }
 
 function Login({ changePagesToLogin }) {
+  const [token, setToken] = GetToken();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [errMsg, setErrMsg] = useState("");
   const [errAnimation, setErrAnimation] = useState(false);
+
+  const Navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -82,10 +105,8 @@ function Login({ changePagesToLogin }) {
         password,
       })
       .then((response) => {
-        console.log(response);
-        alert(
-          `User ${response.data.username} Logged In, with Token: ${response.data.accessToken}`
-        );
+        setToken(response.data.accessToken);
+        Navigate("/channel");
       })
       .catch((error) => {
         setErrAnimation(true);
@@ -188,6 +209,10 @@ function Login({ changePagesToLogin }) {
 }
 
 function Register({ changePagesToLogin }) {
+  const [token, setToken] = GetToken();
+
+  const Navigate = useNavigate();
+
   const USER_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9_ ]{2,23}[a-zA-Z0-9]$/;
   const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,24}$/;
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -255,8 +280,8 @@ function Register({ changePagesToLogin }) {
         dob,
       })
       .then((response) => {
-        console.log(response);
-        alert(response.data.message);
+        setToken(response.data.accessToken);
+        Navigate("/channel");
       })
       .catch((error) => {
         setErrAnimation(true);
