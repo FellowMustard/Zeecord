@@ -13,11 +13,13 @@ import { AiFillGithub, AiFillWarning } from "react-icons/ai";
 import { motion, AnimatePresence } from "framer-motion";
 import DateTimePicker from "../Components/dateTimePicker";
 import { loginUrl, registerUrl, refreshUrl, axios } from "../api/fetchLinks";
-import { GetToken } from "../Context/userProvider";
+import { GetModal, GetToken } from "../Context/userProvider";
 import { useNavigate } from "react-router-dom";
+import AuthLoading from "../Modals/authLoading";
 
 function Home() {
   const [loading, setLoading] = useState(true);
+
   const [token, setToken] = GetToken();
   const [isLogin, setIsLogin] = useState(true);
   const Navigate = useNavigate();
@@ -58,6 +60,7 @@ function Home() {
   return (
     !loading && (
       <main className="main-bg">
+        <Modal />
         {memoBg}
         <span className="app-title">
           <GiBirdTwitter className="logo" />
@@ -77,6 +80,9 @@ function Home() {
 }
 
 function Login({ changePagesToLogin }) {
+  const [modal, setModal] = GetModal();
+  const currModal = { ...modal };
+
   const [token, setToken] = GetToken();
 
   const [email, setEmail] = useState("");
@@ -89,6 +95,7 @@ function Login({ changePagesToLogin }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
     if (!email) {
       setErrAnimation(true);
       setErrMsg("Email Can't be Empty!");
@@ -99,6 +106,9 @@ function Login({ changePagesToLogin }) {
       setErrMsg("Password Can't be Empty!");
       return;
     }
+    currModal.modalAuthLoading = true;
+    setModal(currModal);
+
     await axios
       .post(loginUrl, {
         email,
@@ -106,9 +116,13 @@ function Login({ changePagesToLogin }) {
       })
       .then((response) => {
         setToken(response.data.accessToken);
+        currModal.modalAuthLoading = false;
+        setModal(currModal);
         Navigate("/channel");
       })
       .catch((error) => {
+        currModal.modalAuthLoading = false;
+        setModal(currModal);
         setErrAnimation(true);
         setErrMsg(error.response.data.message);
       });
@@ -209,6 +223,8 @@ function Login({ changePagesToLogin }) {
 }
 
 function Register({ changePagesToLogin }) {
+  const [modal, setModal] = GetModal();
+  const currModal = { ...modal };
   const [token, setToken] = GetToken();
 
   const Navigate = useNavigate();
@@ -248,6 +264,7 @@ function Register({ changePagesToLogin }) {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
     if (!validEmail) {
       setErrAnimation(true);
       setErrMsg("Please Use Valid Email Address!");
@@ -271,7 +288,8 @@ function Register({ changePagesToLogin }) {
       setErrMsg("Please Fill in the Date of Birth!");
       return;
     }
-
+    currModal.modalAuthLoading = true;
+    setModal(currModal);
     await axios
       .post(registerUrl, {
         username,
@@ -280,10 +298,14 @@ function Register({ changePagesToLogin }) {
         dob,
       })
       .then((response) => {
+        currModal.modalAuthLoading = false;
+        setModal(currModal);
         setToken(response.data.accessToken);
         Navigate("/channel");
       })
       .catch((error) => {
+        currModal.modalAuthLoading = false;
+        setModal(currModal);
         setErrAnimation(true);
         setErrMsg(error.response.data.message);
         if (error.response.status === 409) {
@@ -463,5 +485,10 @@ function Register({ changePagesToLogin }) {
     </motion.form>
   );
 }
-
+function Modal() {
+  const [modal, setModal] = GetModal();
+  return (
+    <div className="empty">{modal.modalAuthLoading && <AuthLoading />}</div>
+  );
+}
 export default Home;

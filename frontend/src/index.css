@@ -13,6 +13,11 @@ button {
   border: transparent;
   background-color: transparent;
 }
+.empty {
+  top: 0;
+  left: 0;
+  position: absolute;
+}
 .main-bg {
   min-width: 100vw;
   min-height: 100vh;
@@ -45,7 +50,7 @@ button {
   position: absolute;
   top: 0;
   text-align: left;
-  z-index: 1000;
+  z-index: 10;
   align-self: flex-start;
   padding: 10px;
   display: flex;
@@ -61,7 +66,7 @@ button {
   max-height: 80%;
   position: absolute;
   margin: 10px;
-  z-index: 20;
+  z-index: 10;
   padding: 30px;
   border-radius: 20px;
   background-color: #36393f;
@@ -120,7 +125,7 @@ button {
   color: #ff0000;
 }
 .cred-tab .instruction {
-  z-index: 100;
+  z-index: 10;
   border-radius: 2px;
   width: 100%;
   background-color: #111111;
@@ -228,15 +233,44 @@ input[type="checkbox"].checkmark {
   align-items: center;
   cursor: pointer;
   transition: all 0.5s ease;
-  z-index: 999;
+  z-index: 10;
 }
 .github-href .logo {
-  z-index: 999;
+  z-index: 10;
 }
 .github-href .logo:hover {
   animation: github 1s ease forwards;
 }
+.modal-bg {
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 20;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
 
+.modal-box-loading {
+  width: 320px;
+  max-width: 320px;
+  border-radius: 10px;
+  background-color: #36393f;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.35);
+  -webkit-box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.35);
+  -moz-box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.35);
+}
+.modal-box-loading .loading {
+  animation: spin 1s linear infinite;
+}
 @keyframes github {
   0% {
     font-size: 3rem;
@@ -262,7 +296,14 @@ input[type="checkbox"].checkmark {
     transform: rotateZ(0deg);
   }
 }
-
+@keyframes spin {
+  0% {
+    transform: rotateZ(0deg);
+  }
+  100% {
+    transform: rotateZ(360deg);
+  }
+}
 @media only screen and (max-width: 600px) {
   .app-title {
     position: relative;

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { GetToken, GetProfile } from "../Context/userProvider";
-import { logoutUrl, axios } from "../api/fetchLinks";
+import { logoutUrl, axios, refreshUrl, testingUrl } from "../api/fetchLinks";
+import secureAxios from "../api/secureLinks";
 
 function Channel() {
   const Navigate = useNavigate();
@@ -15,11 +16,22 @@ function Channel() {
       Navigate("/");
     }
   };
+  const handleTest = async () => {
+    const response = await secureAxios(token).get(testingUrl);
+    if (!response) {
+      setUserProfile();
+      setToken();
+      Navigate("/");
+    } else {
+      setToken(response.token);
+    }
+  };
 
   return (
     <div>
       Hello {userProfile?.username ?? "user"}#{userProfile?.code ?? "0000"}
       <button onClick={() => handleLogout()}>log out here</button>
+      <button onClick={() => handleTest()}>TESTING</button>
     </div>
   );
 }
