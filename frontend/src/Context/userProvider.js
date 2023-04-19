@@ -25,6 +25,7 @@ function UserProvider({ children }) {
   const [token, setToken] = useState();
   const [modal, setModal] = useState({
     modalAuthLoading: false,
+    modalLogout: false,
   });
 
   const fetchData = async () => {

@@ -487,6 +487,7 @@ function Register({ changePagesToLogin }) {
 }
 function Modal() {
   const [modal, setModal] = GetModal();
+
   return (
     <div className="empty">{modal.modalAuthLoading && <AuthLoading />}</div>
   );

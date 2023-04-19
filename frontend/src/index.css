@@ -62,7 +62,7 @@ button {
 }
 .login-card,
 .reg-card {
-  overflow: scroll;
+  overflow: auto;
   max-height: 80%;
   position: absolute;
   margin: 10px;
@@ -253,9 +253,9 @@ input[type="checkbox"].checkmark {
   justify-content: center;
 }
 
-.modal-box-loading {
-  width: 320px;
-  max-width: 320px;
+.modal-box {
+  width: 330px;
+  max-width: 330px;
   border-radius: 10px;
   background-color: #36393f;
   color: #fff;
@@ -263,13 +263,135 @@ input[type="checkbox"].checkmark {
   justify-content: center;
   align-items: center;
   gap: 10px;
-  padding: 20px;
+  padding: 15px;
   box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.35);
   -webkit-box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.35);
   -moz-box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.35);
 }
+.modal-box-title {
+  color: #fff;
+  font-weight: 600;
+  font-size: 18px;
+  display: flex;
+}
+.modal-box.vertical {
+  flex-direction: column;
+}
 .modal-box-loading .loading {
   animation: spin 1s linear infinite;
+}
+.modal-box-content {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0;
+}
+.modal-box .button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+.modal-box .button-container button {
+  padding: 8px 15px;
+  cursor: pointer;
+  color: #fff;
+  background-color: #202225;
+  border-radius: 5px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.modal-box .button-container .logout:hover {
+  background-color: #ff0000;
+}
+.main-body {
+  width: 100vw;
+  height: 100vh;
+  background-color: #202225;
+  display: flex;
+  flex-direction: column;
+}
+.top-title {
+  font-weight: 800;
+  max-height: 28px;
+  padding: 2px 5px;
+  color: #9a9da1;
+}
+.content-area {
+  display: flex;
+  width: 100%;
+  flex: 2;
+}
+.group-tab {
+  width: 70px;
+  max-height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  align-items: center;
+  padding: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: column;
+}
+.group-button {
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #36393f;
+  border-radius: 50%;
+  color: #fff;
+  width: 48px;
+  height: 48px;
+  transition: all 0.1s ease;
+  margin: 10px auto;
+  cursor: pointer;
+  position: relative;
+}
+.group-button.logout {
+  margin-bottom: 0;
+  font-size: 18px;
+}
+.group-button.active,
+.group-button:hover {
+  border-radius: 10px;
+  background-color: #5865f2;
+}
+
+.group-button:hover .group-desc {
+  display: block;
+}
+
+.group-desc {
+  position: fixed;
+  font-weight: 600;
+  font-size: 14px;
+  left: 90px;
+  z-index: 20;
+  background-color: #18191c;
+  padding: 7px;
+  border-radius: 4px;
+  display: none;
+}
+
+.group-desc::after {
+  position: absolute;
+  left: -18px;
+  bottom: 12px;
+  content: "";
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 5px 10px 5px 10px;
+  border-color: transparent #18191c transparent transparent;
+}
+
+.seperate-line {
+  width: 40px;
+  height: 2px;
+  background-color: #36393f;
+  margin: 10px auto;
+  border-radius: 10px;
 }
 @keyframes github {
   0% {

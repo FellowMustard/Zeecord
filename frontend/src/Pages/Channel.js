@@ -1,21 +1,22 @@
 import { useNavigate } from "react-router-dom";
-import { GetToken, GetProfile } from "../Context/userProvider";
-import { logoutUrl, axios, refreshUrl, testingUrl } from "../api/fetchLinks";
+import { GetToken, GetProfile, GetModal } from "../Context/userProvider";
+import { testingUrl } from "../api/fetchLinks";
 import secureAxios from "../api/secureLinks";
+import GroupList from "../Components/groupList";
+import Logout from "../Modals/logout";
 
 function Channel() {
+  const [modal, setModal] = GetModal();
+  const currModal = { ...modal };
   const Navigate = useNavigate();
   const [userProfile, setUserProfile] = GetProfile();
   const [token, setToken] = GetToken();
 
-  const handleLogout = async () => {
-    const { data } = await axios.post(logoutUrl);
-    if (data) {
-      setUserProfile();
-      setToken();
-      Navigate("/");
-    }
+  const handleLogoutModal = () => {
+    currModal.modalLogout = true;
+    setModal(currModal);
   };
+
   const handleTest = async () => {
     const response = await secureAxios(token).get(testingUrl);
     if (!response) {
@@ -28,10 +29,24 @@ function Channel() {
   };
 
   return (
-    <div>
-      Hello {userProfile?.username ?? "user"}#{userProfile?.code ?? "0000"}
-      <button onClick={() => handleLogout()}>log out here</button>
-      <button onClick={() => handleTest()}>TESTING</button>
+    <div className="main-body">
+      <Modal />
+      <div className="top-title">Zeecord</div>
+      <div className="content-area">
+        <GroupList handleLogoutModal={handleLogoutModal} />
+      </div>
+    </div>
+  );
+}
+
+function Modal() {
+  const [modal, setModal] = GetModal();
+  const currModal = { ...modal };
+  return (
+    <div className="empty">
+      {modal.modalLogout && (
+        <Logout currModal={currModal} modalState={[modal, setModal]} />
+      )}
     </div>
   );
 }
