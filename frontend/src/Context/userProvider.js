@@ -26,6 +26,7 @@ function UserProvider({ children }) {
   const [modal, setModal] = useState({
     modalAuthLoading: false,
     modalLogout: false,
+    modalPicEdit: true,
   });
 
   const fetchData = async () => {

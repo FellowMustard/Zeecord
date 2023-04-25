@@ -6,6 +6,7 @@ const {
   createAccessToken,
   createRefreshToken,
 } = require("../middleware/generateToken");
+const { deletePhoto } = require("../middleware/cloudinaryConfig");
 
 const getUserProfile = asyncHandler(async (req, res) => {
   const id = req.id;
@@ -53,6 +54,28 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-const updateUser = asyncHandler(async (req, res) => {});
+const updateUser = asyncHandler(async (req, res) => {
+  const { username, pic, currpic } = req.body;
+  const id = req.id;
+  if (currpic) {
+    deletePhoto(currpic);
+  }
+  const updateUser = await User.findByIdAndUpdate(
+    id,
+    {
+      pic,
+      username,
+    },
+    {
+      new: true,
+    }
+  ).select("-password");
 
-module.exports = { getUserProfile, registerUser };
+  if (updateUser) {
+    return res.json({ username: updateUser.username, pic: updateUser.pic });
+  } else {
+    return res.status(400).json({ message: "Invalid User Data!" });
+  }
+});
+
+module.exports = { getUserProfile, registerUser, updateUser };

@@ -13,6 +13,8 @@ const getProfileUrl = baseUrl + "api/user";
 const loginUrl = baseUrl + "api/auth";
 const refreshUrl = baseUrl + "api/auth/refresh";
 const logoutUrl = baseUrl + "api/auth/logout";
+const editProfileUrl = baseUrl + "api/user/edit";
+const uploadCloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`;
 
 export {
   testingUrl,
@@ -22,4 +24,6 @@ export {
   refreshUrl,
   getProfileUrl,
   logoutUrl,
+  editProfileUrl,
+  uploadCloudinaryUrl,
 };

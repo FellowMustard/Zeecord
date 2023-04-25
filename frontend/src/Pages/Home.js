@@ -14,10 +14,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import DateTimePicker from "../Components/dateTimePicker";
 import { loginUrl, registerUrl, refreshUrl, axios } from "../api/fetchLinks";
 import { GetModal, GetToken } from "../Context/userProvider";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import AuthLoading from "../Modals/authLoading";
 
 function Home() {
+  const [forbidden, setForbidden] = useState(false);
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
 
   const [token, setToken] = GetToken();
@@ -45,6 +47,10 @@ function Home() {
   }, []);
 
   useEffect(() => {
+    if (location.state?.forbidden) {
+      setForbidden(true);
+    }
+
     const fetchData = async () => {
       const { data } = await axios.get(refreshUrl + "?checker=true");
 
@@ -68,7 +74,11 @@ function Home() {
         </span>
         <AnimatePresence>
           {isLogin ? (
-            <Login key="login" changePagesToLogin={changePagesToLogin} />
+            <Login
+              key="login"
+              changePagesToLogin={changePagesToLogin}
+              forbidden={forbidden}
+            />
           ) : (
             <Register key="register" changePagesToLogin={changePagesToLogin} />
           )}
@@ -79,7 +89,7 @@ function Home() {
   );
 }
 
-function Login({ changePagesToLogin }) {
+function Login({ changePagesToLogin, forbidden }) {
   const [modal, setModal] = GetModal();
   const currModal = { ...modal };
 
@@ -127,6 +137,13 @@ function Login({ changePagesToLogin }) {
         setErrMsg(error.response.data.message);
       });
   };
+  useEffect(() => {
+    if (forbidden) {
+      setErrAnimation(true);
+      setErrMsg("Please Try to Login Again!");
+      return;
+    }
+  }, []);
 
   useEffect(() => {
     if (errAnimation) {

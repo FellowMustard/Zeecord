@@ -4,6 +4,8 @@ import { testingUrl } from "../api/fetchLinks";
 import secureAxios from "../api/secureLinks";
 import GroupList from "../Components/groupList";
 import Logout from "../Modals/logout";
+import SubList from "../Components/subList";
+import PicEdit from "../Modals/picEdit";
 
 function Channel() {
   const [modal, setModal] = GetModal();
@@ -34,6 +36,9 @@ function Channel() {
       <div className="top-title">Zeecord</div>
       <div className="content-area">
         <GroupList handleLogoutModal={handleLogoutModal} />
+        <div className="right-content">
+          <SubList />
+        </div>
       </div>
     </div>
   );
@@ -46,6 +51,9 @@ function Modal() {
     <div className="empty">
       {modal.modalLogout && (
         <Logout currModal={currModal} modalState={[modal, setModal]} />
+      )}
+      {modal.modalPicEdit && (
+        <PicEdit currModal={currModal} modalState={[modal, setModal]} />
       )}
     </div>
   );
