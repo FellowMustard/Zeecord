@@ -136,6 +136,11 @@ function EditImage({
     }
 
     const uploadData = new FormData();
+    console.log(
+      process.env.REACT_APP_UPLOAD_PRESET,
+      process.env.REACT_APP_CLOUD_NAME,
+      process.env.REACT_APP_UPLOAD_FOLDER
+    );
     uploadData.append("file", file);
     uploadData.append("upload_preset", process.env.REACT_APP_UPLOAD_PRESET);
     uploadData.append("cloud_name", process.env.REACT_APP_CLOUD_NAME);
@@ -283,3 +288,5 @@ function extractPublicId(url) {
   const endIndex = url.lastIndexOf(".");
   return url.substring(startIndex, endIndex);
 }
+
+// fixing cloudinary env, delete this anytime

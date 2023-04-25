@@ -32,3 +32,5 @@ mongoose.connection.once("open", () => {
 mongoose.connection.once("error", (err) => {
   console.log(err.red.bold);
 });
+
+// fixing cloudinary env, delete this anytime
