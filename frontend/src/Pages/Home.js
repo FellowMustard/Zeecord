@@ -23,6 +23,8 @@ function Home() {
   const location = useLocation();
   const [loading, setLoading] = useState(true);
 
+  const [authLoading, setAuthLoading] = useState(false);
+
   const [token, setToken] = GetToken();
   const [isLogin, setIsLogin] = useState(true);
   const Navigate = useNavigate();
@@ -66,7 +68,7 @@ function Home() {
   return (
     !loading && (
       <main className="main-bg">
-        <Modal />
+        <div className="empty">{authLoading && <AuthLoading />}</div>
         {memoBg}
         <span className="app-title">
           <GiBirdTwitter className="logo" />
@@ -76,11 +78,16 @@ function Home() {
           {isLogin ? (
             <Login
               key="login"
+              setAuthLoading={setAuthLoading}
               changePagesToLogin={changePagesToLogin}
               forbidden={forbidden}
             />
           ) : (
-            <Register key="register" changePagesToLogin={changePagesToLogin} />
+            <Register
+              key="register"
+              setAuthLoading={setAuthLoading}
+              changePagesToLogin={changePagesToLogin}
+            />
           )}
         </AnimatePresence>
         {memoLink}
@@ -89,10 +96,7 @@ function Home() {
   );
 }
 
-function Login({ changePagesToLogin, forbidden }) {
-  const [modal, setModal] = GetModal();
-  const currModal = { ...modal };
-
+function Login({ changePagesToLogin, forbidden, setAuthLoading }) {
   const [token, setToken] = GetToken();
 
   const [email, setEmail] = useState("");
@@ -105,7 +109,6 @@ function Login({ changePagesToLogin, forbidden }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     if (!email) {
       setErrAnimation(true);
       setErrMsg("Email Can't be Empty!");
@@ -116,8 +119,8 @@ function Login({ changePagesToLogin, forbidden }) {
       setErrMsg("Password Can't be Empty!");
       return;
     }
-    currModal.modalAuthLoading = true;
-    setModal(currModal);
+
+    setAuthLoading(true);
 
     await axios
       .post(loginUrl, {
@@ -126,14 +129,12 @@ function Login({ changePagesToLogin, forbidden }) {
       })
       .then((response) => {
         setToken(response.data.accessToken);
-        currModal.modalAuthLoading = false;
-        setModal(currModal);
+        setAuthLoading(false);
         SetNewUser(false);
         Navigate("/channel");
       })
       .catch((error) => {
-        currModal.modalAuthLoading = false;
-        setModal(currModal);
+        setAuthLoading(false);
         setErrAnimation(true);
         setErrMsg(error.response.data.message);
       });
@@ -240,7 +241,7 @@ function Login({ changePagesToLogin, forbidden }) {
   );
 }
 
-function Register({ changePagesToLogin }) {
+function Register({ changePagesToLogin, setAuthLoading }) {
   const [modal, setModal] = GetModal();
   const currModal = { ...modal };
   const [token, setToken] = GetToken();
@@ -306,8 +307,7 @@ function Register({ changePagesToLogin }) {
       setErrMsg("Please Fill in the Date of Birth!");
       return;
     }
-    currModal.modalAuthLoading = true;
-    setModal(currModal);
+    setAuthLoading(true);
     await axios
       .post(registerUrl, {
         username,
@@ -316,15 +316,13 @@ function Register({ changePagesToLogin }) {
         dob,
       })
       .then((response) => {
-        currModal.modalAuthLoading = false;
-        setModal(currModal);
+        setAuthLoading(false);
         setToken(response.data.accessToken);
         SetNewUser(true);
         Navigate("/channel");
       })
       .catch((error) => {
-        currModal.modalAuthLoading = false;
-        setModal(currModal);
+        setAuthLoading(false);
         setErrAnimation(true);
         setErrMsg(error.response.data.message);
         if (error.response.status === 409) {
@@ -504,11 +502,5 @@ function Register({ changePagesToLogin }) {
     </motion.form>
   );
 }
-function Modal() {
-  const [modal, setModal] = GetModal();
 
-  return (
-    <div className="empty">{modal.modalAuthLoading && <AuthLoading />}</div>
-  );
-}
 export default Home;
