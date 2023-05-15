@@ -14,6 +14,8 @@ const loginUrl = baseUrl + "api/auth";
 const refreshUrl = baseUrl + "api/auth/refresh";
 const logoutUrl = baseUrl + "api/auth/logout";
 const editProfileUrl = baseUrl + "api/user/edit";
+const fetchChatUrl = baseUrl + "api/chat";
+const createGroupChatUrl = baseUrl + "api/chat/group";
 const uploadCloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`;
 
 export {
@@ -25,5 +27,7 @@ export {
   getProfileUrl,
   logoutUrl,
   editProfileUrl,
+  fetchChatUrl,
+  createGroupChatUrl,
   uploadCloudinaryUrl,
 };

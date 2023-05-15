@@ -9,6 +9,7 @@ import getCroppedImg from "../Function/cropImage";
 import { GetProfile, GetToken } from "../Context/userProvider";
 import secureAxios from "../api/secureLinks";
 import { editProfileUrl, uploadCloudinaryUrl } from "../api/fetchLinks";
+import { SetNewUser } from "../Function/newUser";
 
 function PicEdit({ currModal, modalState }) {
   const [modal, setModal] = modalState;
@@ -22,6 +23,7 @@ function PicEdit({ currModal, modalState }) {
   }, []);
 
   const handleExitModal = () => {
+    SetNewUser(false);
     currModal.modalPicEdit = false;
     setModal(currModal);
   };

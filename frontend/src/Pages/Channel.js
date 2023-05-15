@@ -6,6 +6,9 @@ import GroupList from "../Components/groupList";
 import Logout from "../Modals/logout";
 import SubList from "../Components/subList";
 import PicEdit from "../Modals/picEdit";
+import { useEffect } from "react";
+import { GetNewUser } from "../Function/newUser";
+import ServerCreation from "../Modals/serverCreation";
 
 function Channel() {
   const [modal, setModal] = GetModal();
@@ -19,23 +22,26 @@ function Channel() {
     setModal(currModal);
   };
 
-  const handleTest = async () => {
-    const response = await secureAxios(token).get(testingUrl);
-    if (!response) {
-      setUserProfile();
-      setToken();
-      Navigate("/");
-    } else {
-      setToken(response.token);
-    }
+  const handleCreateServerModal = () => {
+    currModal.modalServerCreation = true;
+    setModal(currModal);
   };
+
+  useEffect(() => {
+    const newUserState = JSON.parse(GetNewUser());
+    currModal.modalPicEdit = newUserState;
+    setModal(currModal);
+  }, []);
 
   return (
     <div className="main-body">
       <Modal />
       <div className="top-title">Zeecord</div>
       <div className="content-area">
-        <GroupList handleLogoutModal={handleLogoutModal} />
+        <GroupList
+          handleLogoutModal={handleLogoutModal}
+          handleCreateServerModal={handleCreateServerModal}
+        />
         <div className="right-content">
           <SubList />
         </div>
@@ -51,6 +57,9 @@ function Modal() {
     <div className="empty">
       {modal.modalLogout && (
         <Logout currModal={currModal} modalState={[modal, setModal]} />
+      )}
+      {modal.modalServerCreation && (
+        <ServerCreation currModal={currModal} modalState={[modal, setModal]} />
       )}
       {modal.modalPicEdit && (
         <PicEdit currModal={currModal} modalState={[modal, setModal]} />

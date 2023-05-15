@@ -9,6 +9,7 @@ const { default: mongoose } = require("mongoose");
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 const testingRoutes = require("./routes/testingRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 
 const app = express();
 dotenv.config();
@@ -21,6 +22,7 @@ app.use(cookieParser());
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/testing", testingRoutes);
+app.use("/api/chat", chatRoutes);
 
 const PORT = process.env.PORT || 5000;
 

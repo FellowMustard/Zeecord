@@ -1,12 +1,13 @@
 import { logoutUrl, axios } from "../api/fetchLinks";
 import { useNavigate } from "react-router-dom";
-import { GetToken, GetProfile } from "../Context/userProvider";
+import { GetToken, GetProfile, GetGroupChat } from "../Context/userProvider";
 
 function Logout({ currModal, modalState }) {
   const Navigate = useNavigate();
   const [userProfile, setUserProfile] = GetProfile();
   const [token, setToken] = GetToken();
   const [modal, setModal] = modalState;
+  const [groupChatList, setGroupChatList] = GetGroupChat();
 
   const handleExitModal = () => {
     currModal.modalLogout = false;
@@ -17,6 +18,7 @@ function Logout({ currModal, modalState }) {
     if (data) {
       setUserProfile();
       setToken();
+      setGroupChatList();
       handleExitModal();
       Navigate("/");
     }

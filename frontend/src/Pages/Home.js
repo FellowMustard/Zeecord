@@ -16,6 +16,7 @@ import { loginUrl, registerUrl, refreshUrl, axios } from "../api/fetchLinks";
 import { GetModal, GetToken } from "../Context/userProvider";
 import { useNavigate, useLocation } from "react-router-dom";
 import AuthLoading from "../Modals/authLoading";
+import { SetNewUser } from "../Function/newUser";
 
 function Home() {
   const [forbidden, setForbidden] = useState(false);
@@ -50,7 +51,6 @@ function Home() {
     if (location.state?.forbidden) {
       setForbidden(true);
     }
-
     const fetchData = async () => {
       const { data } = await axios.get(refreshUrl + "?checker=true");
 
@@ -128,6 +128,7 @@ function Login({ changePagesToLogin, forbidden }) {
         setToken(response.data.accessToken);
         currModal.modalAuthLoading = false;
         setModal(currModal);
+        SetNewUser(false);
         Navigate("/channel");
       })
       .catch((error) => {
@@ -318,6 +319,7 @@ function Register({ changePagesToLogin }) {
         currModal.modalAuthLoading = false;
         setModal(currModal);
         setToken(response.data.accessToken);
+        SetNewUser(true);
         Navigate("/channel");
       })
       .catch((error) => {

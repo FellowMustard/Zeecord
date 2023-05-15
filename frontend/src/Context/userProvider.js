@@ -1,11 +1,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getProfileUrl } from "../api/fetchLinks";
+import { fetchChatUrl, getProfileUrl } from "../api/fetchLinks";
 import secureAxios from "../api/secureLinks";
 
 const tokenContext = createContext();
 const profileContext = createContext();
 const modalContext = createContext();
+const groupChatContext = createContext();
 
 export function GetToken() {
   return useContext(tokenContext);
@@ -19,6 +20,9 @@ export function GetModal() {
   return useContext(modalContext);
 }
 
+export function GetGroupChat() {
+  return useContext(groupChatContext);
+}
 function UserProvider({ children }) {
   const Navigate = useNavigate();
   const [userProfile, setUserProfile] = useState();
@@ -26,8 +30,10 @@ function UserProvider({ children }) {
   const [modal, setModal] = useState({
     modalAuthLoading: false,
     modalLogout: false,
-    modalPicEdit: true,
+    modalPicEdit: false,
+    modalServerCreation: false,
   });
+  const [groupChatList, setGroupChatList] = useState();
 
   const fetchData = async () => {
     if (!token) {
@@ -41,9 +47,13 @@ function UserProvider({ children }) {
         } else {
           setToken();
           setUserProfile();
-          alert("Please Sign In Again!");
-          Navigate("/");
+          const state = { forbidden: true };
+          Navigate("/", { state });
           return;
+        }
+        const chatData = await secureAxios(token).get(fetchChatUrl);
+        if (chatData) {
+          setGroupChatList(chatData.data.groupChats);
         }
       }
       Navigate("/channel");
@@ -58,7 +68,9 @@ function UserProvider({ children }) {
     <tokenContext.Provider value={[token, setToken]}>
       <profileContext.Provider value={[userProfile, setUserProfile]}>
         <modalContext.Provider value={[modal, setModal]}>
-          {children}
+          <groupChatContext.Provider value={[groupChatList, setGroupChatList]}>
+            {children}
+          </groupChatContext.Provider>
         </modalContext.Provider>
       </profileContext.Provider>
     </tokenContext.Provider>

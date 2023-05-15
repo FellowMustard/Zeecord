@@ -45,6 +45,7 @@ const refresh = asyncHandler(async (req, res) => {
     if (checker) {
       return res.send();
     }
+
     return res.status(401).json({ message: "Unauthorized" });
   }
   const refreshToken = cookies.jwt;
