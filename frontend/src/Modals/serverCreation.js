@@ -98,6 +98,7 @@ function ServerCreation({ currModal, modalState }) {
             chatName: newResponse.data.chatName,
             link: newResponse.data.link,
             isGroupChat: newResponse.data.isGroupChat,
+            users: newResponse.data.users,
           },
         ]);
         setLoading(false);

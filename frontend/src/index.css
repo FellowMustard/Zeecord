@@ -716,7 +716,7 @@ input[type="range"]::-moz-range-progress {
 }
 .group-tab {
   width: 70px;
-  max-height: 100%;
+  max-height: calc(100vh - 28px);
   overflow-y: scroll;
   overflow-x: hidden;
   align-items: center;
@@ -740,12 +740,41 @@ input[type="range"]::-moz-range-progress {
   margin: 10px auto;
   cursor: pointer;
   position: relative;
-  overflow: hidden;
+}
+.group-button img {
+  transition: all 0.1s ease;
+  border-radius: 50%;
+}
+.group-button.active img,
+.group-button:hover img {
+  border-radius: 10px;
+}
+.group-button.server::after {
+  content: "";
+  z-index: 20;
+  left: -12px;
+  position: absolute;
+  height: 0px;
+  width: 4px;
+  background-color: #fff;
+  border-radius: 10px;
+  transition: all 0.3s;
+}
+.group-button.server:hover:after {
+  height: 10px;
+}
+.group-button.server.active::after {
+  height: 33px;
+}
+.group-button.active {
+  border-radius: 10px;
+  background-color: #5865f2;
 }
 .group-button .server-pic {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  animation-play-state: paused;
 }
 .group-button.logout {
   margin-bottom: 0;
@@ -819,6 +848,12 @@ input[type="range"]::-moz-range-progress {
   border-bottom: 2px solid #202225;
   padding: 0 10px;
 }
+.sublist-head .server-name {
+  text-align: left;
+  width: 100%;
+  color: #fff;
+  font-weight: 600;
+}
 .find-conversation {
   cursor: pointer;
   padding: 0 10px;
@@ -835,8 +870,48 @@ input[type="range"]::-moz-range-progress {
   flex: 2;
   overflow: hidden scroll;
   padding: 10px;
+  max-height: calc(100vh - 128px);
 }
-
+.sublist-content .members-span {
+  font-size: 11px;
+  color: #9a9da1;
+  font-weight: 600;
+}
+.member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-top: 5px;
+}
+.member-list .member-button {
+  width: 100%;
+  height: 44px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: #fff;
+  font-weight: 400;
+  cursor: pointer;
+}
+.member-list .member-button:hover {
+  background-color: rgba(255, 255, 255, 0.188);
+}
+.member-button .friend-pic {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background-color: #5865f2;
+  overflow: hidden;
+}
+.friend-pic img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .sublist-footer {
   background-color: #292b2f;
   height: 52px;

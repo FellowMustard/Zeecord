@@ -1,4 +1,4 @@
-import { MdLogout } from "react-icons/md";
+import { MdDiversity3, MdLogout } from "react-icons/md";
 import { AiOutlinePlus } from "react-icons/ai";
 import {
   GetToken,
@@ -7,16 +7,25 @@ import {
   GetGroupChat,
 } from "../Context/userProvider";
 import { logoutUrl, axios } from "../api/fetchLinks";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, NavLink, useParams } from "react-router-dom";
 
 function GroupList({ handleLogoutModal, handleCreateServerModal }) {
+  const { channelName } = useParams();
   const Navigate = useNavigate();
   const [groupChatList, setGroupChatList] = GetGroupChat();
 
+  const handleGroupChatClick = (groupLink) => {
+    localStorage.setItem("latest-group", groupLink);
+    Navigate("/channel/" + groupLink);
+  };
   return (
     <div className="group-tab">
       <div className="group-tab-top">
-        <div className="group-button active" id="personal">
+        <div
+          className="group-button active"
+          id="personal"
+          onClick={() => handleGroupChatClick("@me")}
+        >
           @<span className="group-desc">Dirrect Messages</span>
         </div>
         <div className="seperate-line"></div>
@@ -24,12 +33,15 @@ function GroupList({ handleLogoutModal, handleCreateServerModal }) {
           groupChatList.map((groupChat) => {
             return (
               <div
-                className="group-button"
-                key={groupChat?._id ?? ""}
-                id={groupChat?._id ?? ""}
+                onClick={() => handleGroupChatClick(groupChat.link)}
+                className={`group-button server ${
+                  groupChat.link == channelName ? "active" : ""
+                }`}
+                key={groupChat?.link ?? ""}
+                id={groupChat?.link ?? ""}
               >
                 {groupChat?.pic == "" ? (
-                  "A"
+                  getFirstLine(groupChat.chatName)
                 ) : (
                   <img className="server-pic" src={groupChat.pic}></img>
                 )}
@@ -37,13 +49,6 @@ function GroupList({ handleLogoutModal, handleCreateServerModal }) {
               </div>
             );
           })}
-
-        {/* <div className="group-button" id="group-a">
-          A<span className="group-desc">Group A</span>
-        </div>
-        <div className="group-button" id="group-b">
-          B<span className="group-desc">Group B</span>
-        </div> */}
       </div>
       <div className="group-tab-bot">
         <button
@@ -66,3 +71,7 @@ function GroupList({ handleLogoutModal, handleCreateServerModal }) {
 }
 
 export default GroupList;
+
+const getFirstLine = (word) => {
+  return word.charAt(0).toUpperCase();
+};

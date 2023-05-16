@@ -164,7 +164,6 @@ function EditImage({
       })
       .then((updateResponse) => {
         setToken(updateResponse.token);
-
         setUserProfile({
           ...userProfile,
           pic: updateResponse.data.pic,

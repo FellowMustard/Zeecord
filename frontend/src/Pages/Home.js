@@ -54,12 +54,24 @@ function Home() {
       setForbidden(true);
     }
     const fetchData = async () => {
-      const { data } = await axios.get(refreshUrl + "?checker=true");
+      await axios
+        .get(refreshUrl + "?checker=true")
+        .then((data) => {
+          console.log("im triggered");
+          if (data.data.accessToken) {
+            const latestGroup = localStorage.getItem("latest-group");
+            setToken(data.data.accessToken);
+            Navigate(
+              location.state?.loc ?? latestGroup
+                ? "/channel/" + latestGroup
+                : "/channel/@me"
+            );
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
 
-      if (data) {
-        setToken(data.accessToken);
-        Navigate("/channel");
-      }
       setLoading(false);
     };
     fetchData();
@@ -131,7 +143,7 @@ function Login({ changePagesToLogin, forbidden, setAuthLoading }) {
         setToken(response.data.accessToken);
         setAuthLoading(false);
         SetNewUser(false);
-        Navigate("/channel");
+        Navigate("/channel/@me");
       })
       .catch((error) => {
         setAuthLoading(false);
@@ -319,7 +331,7 @@ function Register({ changePagesToLogin, setAuthLoading }) {
         setAuthLoading(false);
         setToken(response.data.accessToken);
         SetNewUser(true);
-        Navigate("/channel");
+        Navigate("/channel/@me");
       })
       .catch((error) => {
         setAuthLoading(false);

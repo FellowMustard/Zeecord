@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { fetchChatUrl, getProfileUrl } from "../api/fetchLinks";
 import secureAxios from "../api/secureLinks";
 
@@ -24,11 +24,11 @@ export function GetGroupChat() {
   return useContext(groupChatContext);
 }
 function UserProvider({ children }) {
+  const location = useLocation();
   const Navigate = useNavigate();
   const [userProfile, setUserProfile] = useState();
   const [token, setToken] = useState();
   const [modal, setModal] = useState({
-    modalAuthLoading: false,
     modalLogout: false,
     modalPicEdit: false,
     modalServerCreation: false,
@@ -37,7 +37,9 @@ function UserProvider({ children }) {
 
   const fetchData = async () => {
     if (!token) {
-      Navigate("/");
+      const currPath = location.pathname;
+      const state = { loc: currPath };
+      Navigate("/", { state });
     } else {
       if (!userProfile) {
         const response = await secureAxios(token).get(getProfileUrl);
@@ -56,7 +58,6 @@ function UserProvider({ children }) {
           setGroupChatList(chatData.data.groupChats);
         }
       }
-      Navigate("/channel");
     }
   };
 
