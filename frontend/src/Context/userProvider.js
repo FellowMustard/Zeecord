@@ -45,18 +45,32 @@ function UserProvider({ children }) {
   const checkToken = async () => {
     if (!token) {
       const latestGroup = localStorage.getItem("latest-group");
-      let navigateLocation =
-        currPath || (latestGroup ? "/channel/" + latestGroup : "/channel/@me");
-      if (navigateLocation === "/") {
-        navigateLocation = "/channel/@me";
-      }
+
       await axios.get(refreshUrl + "?checker=true").then((data) => {
         if (data.data.accessToken) {
           const state = { token: data.data.accessToken };
           currToken = data.data.accessToken;
+          let navigateLocation =
+            currPath ||
+            (latestGroup ? "/channel/" + latestGroup : "/channel/@me");
+          if (navigateLocation === "/") {
+            navigateLocation = "/channel/@me";
+          }
           Navigate(navigateLocation, { state });
         } else {
+          let navigateLocation;
+          if (location.state?.location) {
+            navigateLocation = location.state?.location;
+          } else {
+            navigateLocation =
+              currPath ||
+              (latestGroup ? "/channel/" + latestGroup : "/channel/@me");
+            if (navigateLocation === "/") {
+              navigateLocation = "/channel/@me";
+            }
+          }
           const state = { location: navigateLocation };
+          console.log(state);
           Navigate("/", { state });
         }
       });
