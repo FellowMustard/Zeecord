@@ -1,7 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { GetToken, GetProfile, GetModal } from "../Context/userProvider";
-import { testingUrl } from "../api/fetchLinks";
-import secureAxios from "../api/secureLinks";
 import GroupList from "../Components/groupList";
 import Logout from "../Modals/logout";
 import SubList from "../Components/subList";
@@ -9,6 +7,7 @@ import PicEdit from "../Modals/picEdit";
 import { useEffect } from "react";
 import { GetNewUser } from "../Function/newUser";
 import ServerCreation from "../Modals/serverCreation";
+import ChatSection from "../Components/chatSection";
 
 function Channel() {
   const [modal, setModal] = GetModal();
@@ -44,6 +43,7 @@ function Channel() {
         />
         <div className="right-content">
           <SubList />
+          <ChatSection />
         </div>
       </div>
     </div>

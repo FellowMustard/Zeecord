@@ -696,6 +696,10 @@ input[type="range"]::-moz-range-progress {
   display: flex;
   flex-direction: column;
 }
+.main-body.center {
+  justify-content: center;
+  align-items: center;
+}
 .top-title {
   font-weight: 800;
   max-height: 28px;
@@ -870,7 +874,7 @@ input[type="range"]::-moz-range-progress {
   flex: 2;
   overflow: hidden scroll;
   padding: 10px;
-  max-height: calc(100vh - 128px);
+  max-height: calc(100vh - 127px);
 }
 .sublist-content .members-span {
   font-size: 11px;
@@ -969,6 +973,88 @@ input[type="range"]::-moz-range-progress {
 }
 .identity .name {
   font-weight: 600;
+}
+.chat-section {
+  flex: 2 1;
+  margin-right: 10px;
+  height: calc((100vh - 27px));
+  background-color: #313338;
+  border-top-right-radius: 10px;
+  display: flex;
+  flex-direction: column;
+}
+.chat-section .chat-area {
+  flex: 2;
+}
+.chat-section .typing-area {
+  height: 52px;
+  padding: 8px 12px;
+  width: 100%;
+  background-color: #313338;
+}
+.typing-area .typing-input {
+  width: 100%;
+  height: 100%;
+  background-color: #383a40;
+  border: transparent;
+  border-radius: 5px;
+  outline: none;
+  padding: 0 8px;
+  color: #fff;
+}
+.join-card {
+  background-color: #383a40;
+  padding: 15px;
+  min-width: 450px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.35);
+  -webkit-box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.35);
+  -moz-box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.35);
+}
+.join-card .join-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  display: block;
+}
+.join-server-details {
+  display: flex;
+  margin: 20px;
+  justify-content: center;
+  gap: 20px;
+  padding: 15px;
+  background-color: #292b2f;
+  border-radius: 10px;
+}
+.join-server-details .server-pic {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.join-server-details .server-detail {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+}
+.server-detail .server-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+.server-detail .member-total {
+  border-radius: 10px;
+  padding: 2px;
+  background-color: #4752c4;
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+  color: #fff;
 }
 @keyframes github {
   0% {

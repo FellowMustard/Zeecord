@@ -21,7 +21,7 @@ import { SetNewUser } from "../Function/newUser";
 function Home() {
   const [forbidden, setForbidden] = useState(false);
   const location = useLocation();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const [authLoading, setAuthLoading] = useState(false);
 
@@ -53,28 +53,6 @@ function Home() {
     if (location.state?.forbidden) {
       setForbidden(true);
     }
-    const fetchData = async () => {
-      await axios
-        .get(refreshUrl + "?checker=true")
-        .then((data) => {
-          console.log("im triggered");
-          if (data.data.accessToken) {
-            const latestGroup = localStorage.getItem("latest-group");
-            setToken(data.data.accessToken);
-            Navigate(
-              location.state?.loc ?? latestGroup
-                ? "/channel/" + latestGroup
-                : "/channel/@me"
-            );
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-
-      setLoading(false);
-    };
-    fetchData();
   }, []);
 
   return (
@@ -109,6 +87,7 @@ function Home() {
 }
 
 function Login({ changePagesToLogin, forbidden, setAuthLoading }) {
+  const location = useLocation();
   const [token, setToken] = GetToken();
 
   const [email, setEmail] = useState("");
@@ -143,7 +122,7 @@ function Login({ changePagesToLogin, forbidden, setAuthLoading }) {
         setToken(response.data.accessToken);
         setAuthLoading(false);
         SetNewUser(false);
-        Navigate("/channel/@me");
+        Navigate(location.state?.location ?? "/channel/@me");
       })
       .catch((error) => {
         setAuthLoading(false);
@@ -254,6 +233,8 @@ function Login({ changePagesToLogin, forbidden, setAuthLoading }) {
 }
 
 function Register({ changePagesToLogin, setAuthLoading }) {
+  const location = useLocation();
+
   const [modal, setModal] = GetModal();
   const currModal = { ...modal };
   const [token, setToken] = GetToken();
@@ -331,7 +312,7 @@ function Register({ changePagesToLogin, setAuthLoading }) {
         setAuthLoading(false);
         setToken(response.data.accessToken);
         SetNewUser(true);
-        Navigate("/channel/@me");
+        Navigate(location.state?.location ?? "/channel/@me");
       })
       .catch((error) => {
         setAuthLoading(false);

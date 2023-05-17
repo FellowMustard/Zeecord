@@ -1,12 +1,18 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { fetchChatUrl, getProfileUrl } from "../api/fetchLinks";
+import {
+  fetchChatUrl,
+  getProfileUrl,
+  refreshUrl,
+  axios,
+} from "../api/fetchLinks";
 import secureAxios from "../api/secureLinks";
 
 const tokenContext = createContext();
 const profileContext = createContext();
 const modalContext = createContext();
 const groupChatContext = createContext();
+let currToken;
 
 export function GetToken() {
   return useContext(tokenContext);
@@ -34,35 +40,63 @@ function UserProvider({ children }) {
     modalServerCreation: false,
   });
   const [groupChatList, setGroupChatList] = useState();
+  const currPath = location.pathname;
 
-  const fetchData = async () => {
+  const checkToken = async () => {
     if (!token) {
-      const currPath = location.pathname;
-      const state = { loc: currPath };
-      Navigate("/", { state });
-    } else {
-      if (!userProfile) {
-        const response = await secureAxios(token).get(getProfileUrl);
-        if (response) {
-          setUserProfile(response.data);
-          setToken(response.token);
+      const latestGroup = localStorage.getItem("latest-group");
+      let navigateLocation =
+        currPath || (latestGroup ? "/channel/" + latestGroup : "/channel/@me");
+      if (navigateLocation === "/") {
+        navigateLocation = "/channel/@me";
+      }
+      await axios.get(refreshUrl + "?checker=true").then((data) => {
+        if (data.data.accessToken) {
+          const state = { token: data.data.accessToken };
+          currToken = data.data.accessToken;
+          Navigate(navigateLocation, { state });
         } else {
-          setToken();
-          setUserProfile();
-          const state = { forbidden: true };
+          const state = { location: navigateLocation };
           Navigate("/", { state });
-          return;
         }
-        const chatData = await secureAxios(token).get(fetchChatUrl);
-        if (chatData) {
-          setGroupChatList(chatData.data.groupChats);
-        }
+      });
+    }
+  };
+  const fetchData = async () => {
+    if (!currToken) {
+      currToken = token || location.state?.token;
+    }
+    setToken(currToken);
+    if (currPath.startsWith("/channel") && !userProfile) {
+      const response = await secureAxios(currToken).get(getProfileUrl);
+      if (response) {
+        setUserProfile(response.data);
+        setToken(response.token);
+        currToken = response.token;
+      }
+      const chatData = await secureAxios(currToken).get(fetchChatUrl);
+      if (chatData) {
+        setToken(chatData.token);
+        setGroupChatList(chatData.data.groupChats);
+        currToken = response.token;
+      }
+
+      if (!chatData || !response) {
+        setToken();
+        setUserProfile();
+        const state = { forbidden: true };
+        Navigate("/", { state });
+        return;
       }
     }
   };
 
   useEffect(() => {
-    fetchData();
+    const checkTokenAndFetchData = async () => {
+      await checkToken();
+      fetchData();
+    };
+    checkTokenAndFetchData();
   }, [Navigate]);
 
   return (

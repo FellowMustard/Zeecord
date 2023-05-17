@@ -89,22 +89,38 @@ function ServerCreation({ currModal, modalState }) {
         pic: response ? response.toString() : "",
       })
       .then((newResponse) => {
+        console.log("tes");
+        console.log(newResponse);
         setToken(newResponse.token);
-        setGroupChatList([
-          ...groupChatList,
-          {
-            _id: newResponse.data._id,
-            pic: newResponse.data.pic,
-            chatName: newResponse.data.chatName,
-            link: newResponse.data.link,
-            isGroupChat: newResponse.data.isGroupChat,
-            users: newResponse.data.users,
-          },
-        ]);
+        const groupChat = groupChatList
+          ? [
+              ...groupChatList,
+              {
+                _id: newResponse.data._id,
+                pic: newResponse.data.pic,
+                chatName: newResponse.data.chatName,
+                link: newResponse.data.link,
+                isGroupChat: newResponse.data.isGroupChat,
+                users: newResponse.data.users,
+              },
+            ]
+          : [
+              {
+                _id: newResponse.data._id,
+                pic: newResponse.data.pic,
+                chatName: newResponse.data.chatName,
+                link: newResponse.data.link,
+                isGroupChat: newResponse.data.isGroupChat,
+                users: newResponse.data.users,
+              },
+            ];
+        console.log(groupChat);
+        setGroupChatList(groupChat);
         setLoading(false);
         handleExitModal();
       })
       .catch((error) => {
+        console.log(error);
         if (error.response.status === 401) {
           setUserProfile();
           setLoading(false);

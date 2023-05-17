@@ -41,6 +41,7 @@ const loginUser = asyncHandler(async (req, res) => {
 const refresh = asyncHandler(async (req, res) => {
   const checker = req.query.checker;
   const cookies = req.cookies;
+
   if (!cookies?.jwt) {
     if (checker) {
       return res.send();
