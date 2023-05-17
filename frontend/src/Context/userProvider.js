@@ -42,37 +42,37 @@ function UserProvider({ children }) {
   const [groupChatList, setGroupChatList] = useState();
   const currPath = location.pathname;
 
+  const navigationChecker = (current, latest) => {
+    let link = current || (latest ? "/channel" + latest : "/channel/@me");
+    if (link === "/") {
+      link = "/channel/@me";
+    }
+    return link;
+  };
+
   const checkToken = async () => {
     if (!token) {
       const latestGroup = localStorage.getItem("latest-group");
 
       await axios.get(refreshUrl + "?checker=true").then((data) => {
+        let navigateLocation;
+
         if (data.data.accessToken) {
           const state = { token: data.data.accessToken };
           currToken = data.data.accessToken;
-          let navigateLocation =
-            currPath ||
-            (latestGroup ? "/channel/" + latestGroup : "/channel/@me");
-          if (navigateLocation === "/") {
-            navigateLocation = "/channel/@me";
-          }
+          navigateLocation = navigationChecker(currPath, latestGroup);
+          console.log(navigateLocation);
           Navigate(navigateLocation, { state });
-        } else {
-          let navigateLocation;
-          if (location.state?.location) {
-            navigateLocation = location.state?.location;
-          } else {
-            navigateLocation =
-              currPath ||
-              (latestGroup ? "/channel/" + latestGroup : "/channel/@me");
-            if (navigateLocation === "/") {
-              navigateLocation = "/channel/@me";
-            }
-          }
-          const state = { location: navigateLocation };
-          console.log(state);
-          Navigate("/", { state });
+          return;
         }
+
+        if (location.state?.location) {
+          navigateLocation = location.state?.location;
+        } else {
+          navigateLocation = navigationChecker(currPath, latestGroup);
+        }
+        const state = { location: navigateLocation };
+        Navigate("/", { state });
       });
     }
   };
