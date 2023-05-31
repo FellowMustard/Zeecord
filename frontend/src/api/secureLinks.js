@@ -19,7 +19,6 @@ const secureAxios = (token) => {
     },
     async (error) => {
       if (error.response?.status === 403) {
-        console.log(token, "token");
         try {
           const refreshTokenResponse = await axiosInstance.get(refreshUrl);
           token = refreshTokenResponse.data.accessToken;

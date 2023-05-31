@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { createGroupChatUrl, uploadCloudinaryUrl } from "../api/fetchLinks";
 import secureAxios from "../api/secureLinks";
-import { GetGroupChat, GetToken, GetProfile } from "../Context/userProvider";
+import { GetGroupChat, GetToken, GetLogout } from "../Context/userProvider";
 import { useNavigate } from "react-router-dom";
 
 function ServerCreation({ currModal, modalState }) {
@@ -13,7 +13,7 @@ function ServerCreation({ currModal, modalState }) {
   const SERVER_REGEX =
     /^(?=.{1,100}$)(?=.*[a-zA-Z0-9].*[a-zA-Z0-9])[^\s]{2,}.*$/;
 
-  const [userProfile, setUserProfile] = GetProfile();
+  const [logout, setLogout] = GetLogout();
   const [token, setToken] = GetToken();
   const [groupChatList, setGroupChatList] = GetGroupChat();
 
@@ -122,9 +122,8 @@ function ServerCreation({ currModal, modalState }) {
       .catch((error) => {
         console.log(error);
         if (error.response.status === 401) {
-          setUserProfile();
+          setLogout(true);
           setLoading(false);
-          setToken();
           const state = { forbidden: true };
           Navigate("/", { state });
         }

@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
-import { GetProfile, GetToken } from "../Context/userProvider";
-import {
-  createGroupChatUrl,
-  fetchGroupDetailUrl,
-  uploadCloudinaryUrl,
-} from "../api/fetchLinks";
+import { GetLogout, GetToken } from "../Context/userProvider";
+import { addToGroupUrl, fetchGroupDetailUrl } from "../api/fetchLinks";
 import secureAxios from "../api/secureLinks";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -12,13 +8,29 @@ function Join() {
   const Navigate = useNavigate();
   const { groupLink } = useParams();
 
-  const [userProfile, setUserProfile] = GetProfile();
+  const [logout, setLogout] = GetLogout();
   const [token, setToken] = GetToken();
 
   const [groupData, setGroupData] = useState();
 
   const [notFound, setNotFound] = useState(false);
   const [joined, setJoined] = useState(false);
+
+  const handleNavigation = (link) => {
+    Navigate("/channel/" + link);
+  };
+  const handleJoinGroup = async (link) => {
+    await secureAxios(token)
+      .put(addToGroupUrl, { chatID: groupData._id })
+      .then(() => {
+        Navigate("/channel/" + link);
+      })
+      .catch((error) => {
+        setLogout(true);
+        const state = { forbidden: true };
+        Navigate("/", { state });
+      });
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,8 +43,7 @@ function Join() {
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            setUserProfile();
-            setToken();
+            setLogout(true);
             const state = { forbidden: true };
             Navigate("/", { state });
           }
@@ -62,6 +73,21 @@ function Join() {
               <span className="member-total">
                 • {groupData.users.length} Members
               </span>
+              {joined ? (
+                <button
+                  onClick={() => handleNavigation(groupData.link)}
+                  className="server-button"
+                >
+                  Go to Server
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleJoinGroup(groupData.link)}
+                  className="server-button"
+                >
+                  Join this Server
+                </button>
+              )}
             </div>
           </div>
         </div>

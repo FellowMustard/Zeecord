@@ -1,22 +1,63 @@
 import { useEffect, useRef, useState } from "react";
-import { GetGroupChat } from "../Context/userProvider";
+import { GetGroupChat, GetToken, GetLogout } from "../Context/userProvider";
 import ProfileUser from "./profileUser";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import secureAxios from "../api/secureLinks";
+import { fetchGroupDetailUrl } from "../api/fetchLinks";
+import { error } from "laravel-mix/src/Log";
 
 function SubList() {
+  const Navigate = useNavigate();
+  const [token, setToken] = GetToken();
+  const [logout, setLogout] = GetLogout();
   const { channelName } = useParams();
   const [groupChatList, setGroupChatList] = GetGroupChat();
   const [currGroupDetails, setCurrGroupDetails] = useState();
   const containerRef = useRef(null);
 
   useEffect(() => {
+    if (channelName == "@me") {
+      return;
+    }
     if (groupChatList) {
       const currentGroup = groupChatList.find(
         (chat) => chat.link === channelName
       );
       setCurrGroupDetails(currentGroup);
+      if (!currentGroup) {
+        fetchData();
+      }
     }
   }, [groupChatList, channelName]);
+
+  const fetchData = async () => {
+    console.log(channelName);
+    await secureAxios(token)
+      .get(fetchGroupDetailUrl + "/" + channelName)
+      .then((updateResponse) => {
+        if (!updateResponse.data.joined) {
+          throw new error();
+        }
+        setToken(updateResponse.token);
+        const groupDataList = [...groupChatList, updateResponse.data.groupChat];
+        setGroupChatList(groupDataList);
+        Navigate("/channel/" + channelName);
+      })
+      .catch((error) => {
+        if (!error.response) {
+          Navigate("/channel/@me");
+          return;
+        }
+        if (error.response.status === 401) {
+          setLogout(true);
+          const state = { forbidden: true };
+          Navigate("/", { state });
+        }
+        if (error.response.status === 400) {
+          Navigate("/channel/@me");
+        }
+      });
+  };
 
   const handleMemberClick = (event) => {
     const button = event.target;

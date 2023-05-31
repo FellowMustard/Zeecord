@@ -6,7 +6,7 @@ import { BiImageAdd } from "react-icons/bi";
 import { BsImageFill } from "react-icons/bs";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "../Function/cropImage";
-import { GetProfile, GetToken } from "../Context/userProvider";
+import { GetLogout, GetProfile, GetToken } from "../Context/userProvider";
 import secureAxios from "../api/secureLinks";
 import { editProfileUrl, uploadCloudinaryUrl } from "../api/fetchLinks";
 import { SetNewUser } from "../Function/newUser";
@@ -108,6 +108,7 @@ function EditImage({
   const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = GetProfile();
   const [token, setToken] = GetToken();
+  const [logout, setLogout] = GetLogout();
   const Navigate = useNavigate();
 
   const handleZoom = (e) => {
@@ -174,9 +175,8 @@ function EditImage({
       })
       .catch((error) => {
         if (error.response.status === 401) {
-          setUserProfile();
+          setLogout(true);
           setLoading(false);
-          setToken();
           const state = { forbidden: true };
           Navigate("/", { state });
         }

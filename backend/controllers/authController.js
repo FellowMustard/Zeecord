@@ -74,7 +74,7 @@ const refresh = asyncHandler(async (req, res) => {
   );
 });
 
-const logout = (req, res) => {
+const logout = asyncHandler(async (req, res) => {
   const cookies = req.cookies;
   if (!cookies?.jwt) {
     return res.status(204);
@@ -85,7 +85,7 @@ const logout = (req, res) => {
     sameSite: "None",
   });
   res.json({ message: "Cookie Cleared!" });
-};
+});
 
 module.exports = {
   loginUser,

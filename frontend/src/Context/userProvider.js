@@ -12,6 +12,7 @@ const tokenContext = createContext();
 const profileContext = createContext();
 const modalContext = createContext();
 const groupChatContext = createContext();
+const logoutContext = createContext();
 let currToken;
 
 export function GetToken() {
@@ -29,6 +30,11 @@ export function GetModal() {
 export function GetGroupChat() {
   return useContext(groupChatContext);
 }
+
+export function GetLogout() {
+  return useContext(logoutContext);
+}
+
 function UserProvider({ children }) {
   const location = useLocation();
   const Navigate = useNavigate();
@@ -39,48 +45,60 @@ function UserProvider({ children }) {
     modalPicEdit: false,
     modalServerCreation: false,
   });
+  const [logout, setLogout] = useState(false);
   const [groupChatList, setGroupChatList] = useState();
   const currPath = location.pathname;
 
   const navigationChecker = (current, latest) => {
-    let link = current || (latest ? "/channel" + latest : "/channel/@me");
-    if (link === "/") {
-      link = "/channel/@me";
-    }
+    let link =
+      current !== "/"
+        ? current
+        : latest
+        ? "/channel/" + latest
+        : "/channel/@me";
     return link;
   };
 
   const checkToken = async () => {
     if (!token) {
       const latestGroup = localStorage.getItem("latest-group");
+      await axios
+        .get(refreshUrl + "?checker=true")
+        .then((data) => {
+          let navigateLocation;
 
-      await axios.get(refreshUrl + "?checker=true").then((data) => {
-        let navigateLocation;
+          if (data.data.accessToken) {
+            const state = { token: data.data.accessToken };
+            currToken = data.data.accessToken;
+            navigateLocation = navigationChecker(currPath, latestGroup);
+            Navigate(navigateLocation, { state });
+            return;
+          }
 
-        if (data.data.accessToken) {
-          const state = { token: data.data.accessToken };
-          currToken = data.data.accessToken;
-          navigateLocation = navigationChecker(currPath, latestGroup);
-          console.log(navigateLocation);
-          Navigate(navigateLocation, { state });
-          return;
-        }
-
-        if (location.state?.location) {
-          navigateLocation = location.state?.location;
-        } else {
-          navigateLocation = navigationChecker(currPath, latestGroup);
-        }
-        const state = { location: navigateLocation };
-        Navigate("/", { state });
-      });
+          if (location.state?.location) {
+            navigateLocation = location.state?.location;
+          } else {
+            navigateLocation = navigationChecker(currPath, latestGroup);
+          }
+          const state = { location: navigateLocation };
+          Navigate("/", { state });
+        })
+        .catch((error) => {
+          if (error.response.status === 401) {
+            setLogout(true);
+            const state = { forbidden: true };
+            Navigate("/", { state });
+            return;
+          }
+        });
     }
   };
   const fetchData = async () => {
     if (!currToken) {
-      currToken = token || location.state?.token;
+      currToken = location.state?.token;
     }
     setToken(currToken);
+
     if (currPath.startsWith("/channel") && !userProfile) {
       const response = await secureAxios(currToken).get(getProfileUrl);
       if (response) {
@@ -88,19 +106,28 @@ function UserProvider({ children }) {
         setToken(response.token);
         currToken = response.token;
       }
+      setLogout(false);
+      if (!response) {
+        setLogout(true);
+        const state = { forbidden: true };
+        Navigate("/", { state });
+        return;
+      }
+    }
+
+    if (currPath.startsWith("/channel") && !groupChatList) {
       const chatData = await secureAxios(currToken).get(fetchChatUrl);
       if (chatData) {
         setToken(chatData.token);
         setGroupChatList(chatData.data.groupChats);
-        currToken = response.token;
-      }
-
-      if (!chatData || !response) {
-        setToken();
-        setUserProfile();
-        const state = { forbidden: true };
-        Navigate("/", { state });
-        return;
+        currToken = chatData.token;
+        setLogout(false);
+        if (!chatData) {
+          setLogout(true);
+          const state = { forbidden: true };
+          Navigate("/", { state });
+          return;
+        }
       }
     }
   };
@@ -113,16 +140,30 @@ function UserProvider({ children }) {
     checkTokenAndFetchData();
   }, [Navigate]);
 
+  useEffect(() => {
+    if (logout) {
+      localStorage.removeItem("latest-group");
+      setToken();
+      setGroupChatList();
+      setUserProfile();
+      currToken = "";
+    }
+  }, [logout]);
+
   return (
-    <tokenContext.Provider value={[token, setToken]}>
-      <profileContext.Provider value={[userProfile, setUserProfile]}>
-        <modalContext.Provider value={[modal, setModal]}>
-          <groupChatContext.Provider value={[groupChatList, setGroupChatList]}>
-            {children}
-          </groupChatContext.Provider>
-        </modalContext.Provider>
-      </profileContext.Provider>
-    </tokenContext.Provider>
+    <logoutContext.Provider value={[logout, setLogout]}>
+      <tokenContext.Provider value={[token, setToken]}>
+        <profileContext.Provider value={[userProfile, setUserProfile]}>
+          <modalContext.Provider value={[modal, setModal]}>
+            <groupChatContext.Provider
+              value={[groupChatList, setGroupChatList]}
+            >
+              {children}
+            </groupChatContext.Provider>
+          </modalContext.Provider>
+        </profileContext.Provider>
+      </tokenContext.Provider>
+    </logoutContext.Provider>
   );
 }
 
