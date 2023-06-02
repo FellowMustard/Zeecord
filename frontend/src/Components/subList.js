@@ -4,7 +4,6 @@ import ProfileUser from "./profileUser";
 import { useNavigate, useParams } from "react-router-dom";
 import secureAxios from "../api/secureLinks";
 import { fetchGroupDetailUrl } from "../api/fetchLinks";
-import { error } from "laravel-mix/src/Log";
 
 function SubList() {
   const Navigate = useNavigate();
@@ -31,12 +30,11 @@ function SubList() {
   }, [groupChatList, channelName]);
 
   const fetchData = async () => {
-    console.log(channelName);
     await secureAxios(token)
       .get(fetchGroupDetailUrl + "/" + channelName)
       .then((updateResponse) => {
         if (!updateResponse.data.joined) {
-          throw new error();
+          throw new Error();
         }
         setToken(updateResponse.token);
         const groupDataList = [...groupChatList, updateResponse.data.groupChat];

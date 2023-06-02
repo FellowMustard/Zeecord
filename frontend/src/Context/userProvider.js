@@ -66,7 +66,6 @@ function UserProvider({ children }) {
         .get(refreshUrl + "?checker=true")
         .then((data) => {
           let navigateLocation;
-          console.log(data);
           if (data.data.accessToken) {
             const state = { token: data.data.accessToken };
             currToken = data.data.accessToken;

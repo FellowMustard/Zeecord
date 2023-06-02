@@ -89,8 +89,6 @@ function ServerCreation({ currModal, modalState }) {
         pic: response ? response.toString() : "",
       })
       .then((newResponse) => {
-        console.log("tes");
-        console.log(newResponse);
         setToken(newResponse.token);
         const groupChat = groupChatList
           ? [
@@ -114,7 +112,6 @@ function ServerCreation({ currModal, modalState }) {
                 users: newResponse.data.users,
               },
             ];
-        console.log(groupChat);
         setGroupChatList(groupChat);
         setLoading(false);
         handleExitModal();
