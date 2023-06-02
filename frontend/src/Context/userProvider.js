@@ -141,12 +141,18 @@ function UserProvider({ children }) {
   }, [Navigate]);
 
   useEffect(() => {
+    const clearData = async () => {
+      await new Promise((resolve) => {
+        localStorage.removeItem("latest-group");
+        setToken();
+        setGroupChatList();
+        setUserProfile();
+        currToken = "";
+        resolve();
+      });
+    };
     if (logout) {
-      localStorage.removeItem("latest-group");
-      setToken();
-      setGroupChatList();
-      setUserProfile();
-      currToken = "";
+      clearData();
     }
   }, [logout]);
 
