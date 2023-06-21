@@ -18,6 +18,7 @@ const fetchChatUrl = baseUrl + "api/chat";
 const createGroupChatUrl = baseUrl + "api/chat/group";
 const fetchGroupDetailUrl = baseUrl + "api/chat/group";
 const addToGroupUrl = baseUrl + "api/chat/groupadd";
+const messageUrl = baseUrl + "api/message";
 const uploadCloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`;
 
 export {
@@ -33,5 +34,6 @@ export {
   createGroupChatUrl,
   fetchGroupDetailUrl,
   addToGroupUrl,
+  messageUrl,
   uploadCloudinaryUrl,
 };
