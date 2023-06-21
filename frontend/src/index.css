@@ -982,12 +982,20 @@ input[type="range"]::-moz-range-progress {
   border-top-right-radius: 10px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  min-height: 0;
 }
 .chat-section .chat-area {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   flex: 2;
+  overflow-y: auto;
+  min-height: 0;
+}
+.chat-group {
+  height: 100%;
+  padding: 20px 0;
 }
 .chat-area .chat-box {
   padding: 0 20px;

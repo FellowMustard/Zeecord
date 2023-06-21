@@ -23,15 +23,15 @@ function ChatSection() {
   const sendMessage = async (event) => {
     if (event.key == "Enter" && messageContent) {
       event.preventDefault();
-      console.log("aa");
+      const message = messageContent;
+      setMessageContent("");
       await secureAxios(token)
         .post(messageUrl, {
-          content: messageContent,
+          content: message,
           chatID: currentID,
         })
         .then((data) => {
           setMessageList([...messageList, data.data]);
-          setMessageContent("");
         })
         .catch((error) => {
           if (error.response.status === 401) {
@@ -70,24 +70,26 @@ function ChatSection() {
     channelName !== "@me" && (
       <main className="chat-section">
         <div className="chat-area">
-          {messageList.map((message) => {
-            return (
-              <div key={message._id} className="chat-box">
-                <img className="chat-pic" src={message.sender.pic} />
-                <section className="chat-detail">
-                  <div className="chat-detail-top">
-                    <span className="chat-sender">
-                      {message.sender.username}
-                    </span>
-                    <span className="chat-time">
-                      {dateConverter(message.createdAt)}
-                    </span>
-                  </div>
-                  <div className="chat-content">{message.content}</div>
-                </section>
-              </div>
-            );
-          })}
+          <div className="chat-group">
+            {messageList.map((message) => {
+              return (
+                <div key={message._id} className="chat-box">
+                  <img className="chat-pic" src={message.sender.pic} />
+                  <section className="chat-detail">
+                    <div className="chat-detail-top">
+                      <span className="chat-sender">
+                        {message.sender.username}
+                      </span>
+                      <span className="chat-time">
+                        {dateConverter(message.createdAt)}
+                      </span>
+                    </div>
+                    <div className="chat-content">{message.content}</div>
+                  </section>
+                </div>
+              );
+            })}
+          </div>
         </div>
         <form className="typing-area" onKeyDown={(e) => sendMessage(e)}>
           <input
