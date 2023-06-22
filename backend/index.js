@@ -30,8 +30,8 @@ const PORT = process.env.PORT || 5000;
 
 const baseUrl =
   process.env.NODE_ENV === "production"
-    ? "https://zeecord.vercel.app/"
-    : "http://localhost:3000/";
+    ? "https://zeecord.vercel.app"
+    : "http://localhost:3000";
 
 mongoose.connection.once("open", () => {
   console.log(`Database is Connected`.cyan.bold);
