@@ -36,6 +36,9 @@ function Channel() {
       socket.emit("setup", userProfile);
       socket.on("connected", () => setSocketConnect(true));
     }
+    return () => {
+      socket.close();
+    };
   }, [userProfile]);
 
   return (
