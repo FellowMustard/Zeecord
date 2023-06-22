@@ -35,10 +35,11 @@ function Channel() {
     if (userProfile) {
       socket.emit("setup", userProfile);
       socket.on("connected", () => setSocketConnect(true));
+
+      return () => {
+        socket.close();
+      };
     }
-    return () => {
-      socket.close();
-    };
   }, [userProfile]);
 
   return (

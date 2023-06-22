@@ -92,7 +92,7 @@ function ChatSection() {
           socket.emit("join chat", channelName);
         })
         .catch((error) => {
-          if (error.name === "CanceledError") {
+          if (error.name === "CanceledError" || error.name === "AxiosError") {
             return;
           }
           if (error.response.status === 401) {

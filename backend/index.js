@@ -68,6 +68,10 @@ mongoose.connection.once("open", () => {
       socket.to(newMessage.chat.link).emit("message recieved", newMessage);
       console.timeEnd("send");
     });
+
+    socket.on("disconnect", () => {
+      console.log("A client disconnected");
+    });
   });
 });
 
