@@ -4,7 +4,7 @@ axios.defaults.withCredentials = true;
 
 const baseUrl =
   process.env.REACT_APP_NODE_ENV === "production"
-    ? "https://zeecord-api.vercel.app/"
+    ? "https://zeecord-production.up.railway.app/"
     : "http://localhost:5000/";
 
 const testingUrl = baseUrl + "api/testing";
