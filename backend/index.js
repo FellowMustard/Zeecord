@@ -28,6 +28,11 @@ app.use("/api/message", messageRoutes);
 
 const PORT = process.env.PORT || 5000;
 
+const baseUrl =
+  process.env.NODE_ENV === "production"
+    ? "https://zeecord.vercel.app/"
+    : "http://localhost:3000/";
+
 mongoose.connection.once("open", () => {
   console.log(`Database is Connected`.cyan.bold);
   const server = app.listen(
@@ -37,7 +42,7 @@ mongoose.connection.once("open", () => {
   const io = require("socket.io")(server, {
     pingTimeout: 60000,
     cors: {
-      origin: "http://localhost:3000",
+      origin: baseUrl,
     },
   });
 
