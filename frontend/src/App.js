@@ -1,8 +1,10 @@
-import { useState } from "react";
-import Home from "./Pages/Home";
-import Channel from "./Pages/Channel";
-import { Route, Routes, Navigate } from "react-router-dom";
-import Join from "./Pages/Join";
+import { lazy } from "react";
+
+import { Route, Routes } from "react-router-dom";
+
+const Home = lazy(() => import("./Pages/Home"));
+const Channel = lazy(() => import("./Pages/Channel"));
+const Join = lazy(() => import("./Pages/Join"));
 
 function App() {
   return (

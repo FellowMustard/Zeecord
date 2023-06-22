@@ -1,20 +1,19 @@
-import { useNavigate } from "react-router-dom";
-import { GetToken, GetProfile, GetModal } from "../Context/userProvider";
+import { GetProfile, GetModal } from "../Context/userProvider";
 import GroupList from "../Components/groupList";
 import Logout from "../Modals/logout";
 import SubList from "../Components/subList";
 import PicEdit from "../Modals/picEdit";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { GetNewUser } from "../Function/newUser";
 import ServerCreation from "../Modals/serverCreation";
 import ChatSection from "../Components/chatSection";
+import socket from "../api/socket";
 
 function Channel() {
+  const [socketConnect, setSocketConnect] = useState(false);
   const [modal, setModal] = GetModal();
   const currModal = { ...modal };
-  const Navigate = useNavigate();
-  const [userProfile, setUserProfile] = GetProfile();
-  const [token, setToken] = GetToken();
+  const [userProfile] = GetProfile();
 
   const handleLogoutModal = () => {
     currModal.modalLogout = true;
@@ -32,21 +31,31 @@ function Channel() {
     setModal(currModal);
   }, []);
 
+  useEffect(() => {
+    if (userProfile) {
+      socket.emit("setup", userProfile);
+      socket.on("connected", () => setSocketConnect(true));
+    }
+  }, [userProfile]);
+
   return (
-    <div className="main-body">
-      <Modal />
-      <div className="top-title">Zeecord</div>
-      <div className="content-area">
-        <GroupList
-          handleLogoutModal={handleLogoutModal}
-          handleCreateServerModal={handleCreateServerModal}
-        />
-        <div className="right-content">
-          <SubList />
-          <ChatSection />
+    userProfile &&
+    socketConnect && (
+      <div className="main-body">
+        <Modal />
+        <div className="top-title">Zeecord</div>
+        <div className="content-area">
+          <GroupList
+            handleLogoutModal={handleLogoutModal}
+            handleCreateServerModal={handleCreateServerModal}
+          />
+          <div className="right-content">
+            <SubList />
+            <ChatSection />
+          </div>
         </div>
       </div>
-    </div>
+    )
   );
 }
 

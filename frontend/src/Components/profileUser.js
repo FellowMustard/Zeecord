@@ -1,9 +1,8 @@
 import { AiFillSetting } from "react-icons/ai";
-import { GetProfile, GetModal } from "../Context/userProvider";
+import { GetProfile } from "../Context/userProvider";
+
 function ProfileUser() {
-  const [userProfile, setUserProfile] = GetProfile();
-  const [modal, setModal] = GetModal();
-  const currModal = { ...modal };
+  const [userProfile] = GetProfile();
 
   return (
     <div className="profile-user-container">

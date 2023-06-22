@@ -30,7 +30,40 @@ const PORT = process.env.PORT || 5000;
 
 mongoose.connection.once("open", () => {
   console.log(`Database is Connected`.cyan.bold);
-  app.listen(PORT, console.log(`PORT ${PORT} is working`.green.bold));
+  const server = app.listen(
+    PORT,
+    console.log(`PORT ${PORT} is working`.green.bold)
+  );
+  const io = require("socket.io")(server, {
+    pingTimeout: 60000,
+    cors: {
+      origin: "http://localhost:3000",
+    },
+  });
+
+  io.on("connection", (socket) => {
+    console.log("connected to socket.io");
+
+    socket.on("setup", (userData) => {
+      socket.join(userData._id);
+      socket.emit("connected");
+    });
+
+    socket.on("join chat", (room) => {
+      socket.join(room);
+      console.log("User Joined Room: " + room);
+    });
+    socket.on("leave chat", (room) => {
+      socket.leave(room);
+      console.log("User Leave Room: " + room);
+    });
+
+    socket.on("new message", (newMessage) => {
+      console.time("send");
+      socket.to(newMessage.chat.link).emit("message recieved", newMessage);
+      console.timeEnd("send");
+    });
+  });
 });
 
 mongoose.connection.once("error", (err) => {

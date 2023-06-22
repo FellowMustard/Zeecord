@@ -8,7 +8,6 @@ const getMessage = asyncHandler(async (req, res) => {
     "sender",
     "username pic"
   );
-  console.log(messages);
   if (messages) {
     res.status(200).json(messages);
   } else {
@@ -17,39 +16,41 @@ const getMessage = asyncHandler(async (req, res) => {
 });
 
 const sendMessage = asyncHandler(async (req, res) => {
-  const { content, chatID } = req.body;
+  console.time("chat");
+  const { content, chatID, unique, id } = req.body;
 
   if (!content || !chatID) {
     return res.status(400).json({ message: "Message Invalid!" });
   }
   const checkUser = await Chat.findOne({
     _id: chatID,
-    users: { $elemMatch: { user: req.id } },
+    users: { $elemMatch: { user: id } },
   });
 
   if (!checkUser) {
     return res.status(400).json({ message: "User Invalid!" });
   }
 
-  const newMessage = { sender: req.id, content, chat: chatID };
-  const createMessage = await Message.create(newMessage);
+  const createMessage = await Message.create({
+    sender: id,
+    content,
+    chat: chatID,
+    unique,
+  });
 
-  if (createMessage) {
-    let messageData = await createMessage.populate("sender", "username pic");
-    messageData = await messageData.populate("chat");
-    messageData = await User.populate(messageData, {
-      path: "chat.users.user",
-      select: "name pic",
-    });
-
-    await Chat.findByIdAndUpdate(req.body.chatID, {
-      latestMessage: messageData,
-    });
-
-    return res.status(200).json(messageData);
-  } else {
+  if (!createMessage) {
     return res.status(400).json({ message: "Message Invalid!" });
   }
+  let messageData = await createMessage.populate([
+    { path: "sender", select: "username pic" },
+    { path: "chat" },
+  ]);
+  messageData = await User.populate(messageData, {
+    path: "chat.users.user",
+    select: "name pic",
+  });
+  console.timeEnd("chat");
+  return res.status(200).json(messageData);
 });
 
 module.exports = { sendMessage, getMessage };

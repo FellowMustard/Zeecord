@@ -1,97 +1,185 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { GetGroupChat, GetToken, GetLogout } from "../Context/userProvider";
+import {
+  GetGroupChat,
+  GetToken,
+  GetLogout,
+  GetProfile,
+} from "../Context/userProvider";
 import secureAxios from "../api/secureLinks";
-import { messageUrl, fetchGroupDetailUrl } from "../api/fetchLinks";
+import { axios, messageUrl } from "../api/fetchLinks";
+import socket from "../api/socket";
+import { v4 as uuidv4 } from "uuid";
 
 function ChatSection() {
   const Navigate = useNavigate();
   const [token, setToken] = GetToken();
-  const [logout, setLogout] = GetLogout();
-  const [groupChatList, setGroupChatList] = GetGroupChat();
+  const [userProfile, setUserProfile] = GetProfile();
+  const [, setLogout] = GetLogout();
+  const [groupChatList] = GetGroupChat();
   const [messageList, setMessageList] = useState([]);
+  const [previewMessage, setPreviewMessage] = useState([]);
   const [messageContent, setMessageContent] = useState("");
+  const [isProcessingMessage, setIsProcessingMessage] = useState(false);
   const [currentID, setCurrentID] = useState();
   const { channelName } = useParams();
+  const scrollContentRef = useRef(null);
+
+  const scrollToBottom = () => {
+    scrollContentRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
-    if (channelName !== "@me") {
-      fetchData();
+    if (messageList) {
+      scrollToBottom();
     }
-  }, [channelName, groupChatList]);
+  }, [messageList]);
 
-  const sendMessage = async (event) => {
-    if (event.key == "Enter" && messageContent) {
-      event.preventDefault();
-      const message = messageContent;
-      setMessageContent("");
-      await secureAxios(token)
+  useEffect(() => {
+    if (isProcessingMessage || previewMessage.length === 0) {
+      return;
+    }
+
+    const processingMessage = async () => {
+      setIsProcessingMessage(true);
+      scrollToBottom();
+      const currPreview = previewMessage[0];
+      await axios
         .post(messageUrl, {
-          content: message,
+          content: currPreview.content,
           chatID: currentID,
+          unique: currPreview.unique,
+          id: userProfile._id,
         })
-        .then((data) => {
-          setMessageList([...messageList, data.data]);
+        .then(async (data) => {
+          setMessageList((prevList) => [...prevList, data.data]);
+          socket.emit("new message", data.data);
+          setPreviewMessage((prevPreview) => prevPreview.slice(1));
         })
         .catch((error) => {
+          console.log(error);
+          setPreviewMessage((prevPreview) => prevPreview.slice(1));
+        })
+        .finally(() => {
+          setIsProcessingMessage(false);
+        });
+    };
+    processingMessage();
+  }, [previewMessage, isProcessingMessage]);
+
+  useEffect(() => {
+    socket.on("message recieved", handleMessageRecieved);
+    return () => {
+      socket.off("message recieved", handleMessageRecieved);
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+
+    const fetchData = async () => {
+      if (!groupChatList || channelName == "@me") return;
+      const currentChannel = groupChatList.find(
+        (chat) => chat.link === channelName
+      );
+      setMessageList([]);
+      setCurrentID(currentChannel._id);
+      await secureAxios(token)
+        .get(messageUrl + "/" + currentChannel._id, { signal })
+        .then((updateResponse) => {
+          setMessageList(updateResponse.data);
+          socket.emit("join chat", channelName);
+        })
+        .catch((error) => {
+          if (error.name === "CanceledError") {
+            return;
+          }
           if (error.response.status === 401) {
             setLogout(true);
             const state = { forbidden: true };
             Navigate("/", { state });
           }
+          if (error.response.status === 403) {
+            Navigate("/channel/@me");
+          }
         });
-    }
-  };
+    };
 
-  const fetchData = async () => {
-    if (!groupChatList || channelName == "@me") return;
-    const currentChannel = groupChatList.find(
-      (chat) => chat.link === channelName
-    );
-    setCurrentID(currentChannel._id);
-    await secureAxios(token)
-      .get(messageUrl + "/" + currentChannel._id)
-      .then((updateResponse) => {
-        setMessageList(updateResponse.data);
-      })
-      .catch((error) => {
-        if (error.response.status === 401) {
-          setLogout(true);
-          const state = { forbidden: true };
-          Navigate("/", { state });
-        }
-        if (error.response.status === 403) {
-          Navigate("/channel/@me");
-        }
-      });
+    setMessageList([]);
+    if (channelName !== "@me") {
+      fetchData();
+    }
+    return () => {
+      abortController.abort();
+      socket.emit("leave chat", channelName);
+    };
+  }, [channelName, groupChatList]);
+
+  const handleMessageRecieved = useCallback(
+    (message) => {
+      if (!channelName || channelName !== message.chat.link) {
+      } else {
+        setMessageList((prevList) => [...prevList, message]);
+      }
+    },
+    [channelName]
+  );
+
+  const sendMessage = async (event) => {
+    event.preventDefault();
+    if (messageContent !== "") {
+      const message = messageContent;
+      const sendMessage = {
+        content: message,
+        unique: uuidv4(),
+      };
+      setMessageContent("");
+      setPreviewMessage((prevPreview) => [...prevPreview, sendMessage]);
+    }
   };
 
   return (
     channelName !== "@me" && (
       <main className="chat-section">
-        <div className="chat-area">
-          <div className="chat-group">
-            {messageList.map((message) => {
-              return (
-                <div key={message._id} className="chat-box">
-                  <img className="chat-pic" src={message.sender.pic} />
-                  <section className="chat-detail">
-                    <div className="chat-detail-top">
-                      <span className="chat-sender">
-                        {message.sender.username}
-                      </span>
-                      <span className="chat-time">
-                        {dateConverter(message.createdAt)}
-                      </span>
-                    </div>
-                    <div className="chat-content">{message.content}</div>
-                  </section>
-                </div>
-              );
-            })}
-          </div>
+        <div className="chat-group">
+          {messageList.map((message) => {
+            return (
+              <div key={message._id} className="chat-box">
+                <img className="chat-pic" src={message.sender.pic} />
+                <section className="chat-detail">
+                  <div className="chat-detail-top">
+                    <span className="chat-sender">
+                      {message.sender.username}
+                    </span>
+                    <span className="chat-time">
+                      {dateConverter(message.createdAt)}
+                    </span>
+                  </div>
+                  <div className="chat-content">{message.content}</div>
+                </section>
+              </div>
+            );
+          })}
+          {previewMessage.map((message) => {
+            return (
+              <div key={message.unique} className="chat-box preview">
+                <img className="chat-pic" src={userProfile.pic} />
+                <section className="chat-detail">
+                  <div className="chat-detail-top">
+                    <span className="chat-sender">{userProfile.username}</span>
+                    <span className="chat-time">
+                      {dateConverter(Date.now())}
+                    </span>
+                  </div>
+                  <div className="chat-content">{message.content}</div>
+                </section>
+              </div>
+            );
+          })}
+          <div ref={scrollContentRef}></div>
         </div>
-        <form className="typing-area" onKeyDown={(e) => sendMessage(e)}>
+        <form className="typing-area" onSubmit={(e) => sendMessage(e)}>
           <input
             className="typing-input"
             placeholder="Send Message"

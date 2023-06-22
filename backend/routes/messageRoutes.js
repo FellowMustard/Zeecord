@@ -4,6 +4,6 @@ const verifyToken = require("../middleware/verifyToken");
 const { sendMessage, getMessage } = require("../controllers/messageController");
 
 router.route("/:chatID").get(verifyToken, getMessage);
-router.route("/").post(verifyToken, sendMessage);
+router.route("/").post(sendMessage);
 
 module.exports = router;
