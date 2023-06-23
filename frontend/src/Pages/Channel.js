@@ -35,6 +35,7 @@ function Channel() {
     if (userProfile) {
       socket.emit("setup", userProfile);
       socket.on("connected", () => setSocketConnect(true));
+      console.log("emitted");
 
       return () => {
         socket.close();
@@ -55,7 +56,7 @@ function Channel() {
           />
           <div className="right-content">
             <SubList />
-            <ChatSection />
+            <ChatSection socketConnect={socketConnect} />
           </div>
         </div>
       </div>

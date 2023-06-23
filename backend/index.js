@@ -30,9 +30,10 @@ const PORT = process.env.PORT || 5000;
 
 const baseUrl =
   process.env.NODE_ENV === "production"
-    ? "https://zeecord.vercel.app"
+    ? "https://zeecord.vercel.app/"
     : "http://localhost:3000";
 
+var clientConnect = {};
 mongoose.connection.once("open", () => {
   console.log(`Database is Connected`.cyan.bold);
   const server = app.listen(
@@ -47,20 +48,36 @@ mongoose.connection.once("open", () => {
   });
 
   io.on("connection", (socket) => {
-    console.log("connected to socket.io");
-
     socket.on("setup", (userData) => {
+      clientConnect[socket.id] = {
+        username: userData.username,
+        code: userData.code,
+        id: userData._id,
+      };
+      console.log(
+        `${clientConnect[socket.id].username}#${
+          clientConnect[socket.id].code
+        }(${socket.id}) has connected`
+      );
       socket.join(userData._id);
       socket.emit("connected");
     });
 
     socket.on("join chat", (room) => {
       socket.join(room);
-      console.log("User Joined Room: " + room);
+      console.log(
+        `${clientConnect[socket.id].username}#${
+          clientConnect[socket.id].code
+        }(${socket.id}) has joined room : ${room}`
+      );
     });
     socket.on("leave chat", (room) => {
       socket.leave(room);
-      console.log("User Leave Room: " + room);
+      console.log(
+        `${clientConnect[socket.id].username}#${
+          clientConnect[socket.id].code
+        }(${socket.id}) has left room : ${room}`
+      );
     });
 
     socket.on("new message", (newMessage) => {
@@ -70,7 +87,15 @@ mongoose.connection.once("open", () => {
     });
 
     socket.on("disconnect", () => {
-      console.log("A client disconnected");
+      if (!Object.keys(clientConnect).length === 0) {
+        console.log(clientConnect);
+        console.log(
+          `${clientConnect[socket.id].username}#${
+            clientConnect[socket.id].username
+          }(${socket.id}) has disconnected`
+        );
+        delete clientConnect[socket.id];
+      }
     });
   });
 });

@@ -10,8 +10,9 @@ import secureAxios from "../api/secureLinks";
 import { axios, messageUrl } from "../api/fetchLinks";
 import socket from "../api/socket";
 import { v4 as uuidv4 } from "uuid";
+import { replaceHttp } from "../Function/replaceHttp";
 
-function ChatSection() {
+function ChatSection({ socketConnect }) {
   const Navigate = useNavigate();
   const [token, setToken] = GetToken();
   const [userProfile, setUserProfile] = GetProfile();
@@ -24,9 +25,10 @@ function ChatSection() {
   const [currentID, setCurrentID] = useState();
   const { channelName } = useParams();
   const scrollContentRef = useRef(null);
+  const previousChannelName = useRef(channelName);
 
   const scrollToBottom = () => {
-    scrollContentRef.current?.scrollIntoView({ behavior: "smooth" });
+    scrollContentRef.current?.scrollIntoView({ behavior: "auto" });
   };
 
   useEffect(() => {
@@ -107,14 +109,19 @@ function ChatSection() {
     };
 
     setMessageList([]);
-    if (channelName !== "@me") {
+    if (channelName !== "@me" && socketConnect) {
       fetchData();
     }
     return () => {
       abortController.abort();
-      socket.emit("leave chat", channelName);
+      if (
+        previousChannelName.current !== "@me" &&
+        previousChannelName.current !== channelName
+      ) {
+        socket.emit("leave chat", channelName);
+      }
     };
-  }, [channelName, groupChatList]);
+  }, [channelName, groupChatList, socketConnect]);
 
   const handleMessageRecieved = useCallback(
     (message) => {
@@ -146,7 +153,10 @@ function ChatSection() {
           {messageList.map((message) => {
             return (
               <div key={message._id} className="chat-box">
-                <img className="chat-pic" src={message.sender.pic} />
+                <img
+                  className="chat-pic"
+                  src={replaceHttp(message.sender.pic)}
+                />
                 <section className="chat-detail">
                   <div className="chat-detail-top">
                     <span className="chat-sender">
@@ -164,7 +174,7 @@ function ChatSection() {
           {previewMessage.map((message) => {
             return (
               <div key={message.unique} className="chat-box preview">
-                <img className="chat-pic" src={userProfile.pic} />
+                <img className="chat-pic" src={replaceHttp(userProfile.pic)} />
                 <section className="chat-detail">
                   <div className="chat-detail-top">
                     <span className="chat-sender">{userProfile.username}</span>

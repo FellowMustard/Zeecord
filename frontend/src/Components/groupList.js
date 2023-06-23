@@ -8,6 +8,7 @@ import {
 } from "../Context/userProvider";
 import { logoutUrl, axios } from "../api/fetchLinks";
 import { useNavigate, NavLink, useParams } from "react-router-dom";
+import { replaceHttp } from "../Function/replaceHttp";
 
 function GroupList({ handleLogoutModal, handleCreateServerModal }) {
   const { channelName } = useParams();
@@ -43,7 +44,10 @@ function GroupList({ handleLogoutModal, handleCreateServerModal }) {
                 {groupChat?.pic == "" ? (
                   getFirstLine(groupChat.chatName)
                 ) : (
-                  <img className="server-pic" src={groupChat.pic}></img>
+                  <img
+                    className="server-pic"
+                    src={replaceHttp(groupChat.pic)}
+                  ></img>
                 )}
                 <span className="group-desc">{groupChat?.chatName ?? ""}</span>
               </div>

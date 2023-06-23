@@ -3,6 +3,7 @@ import { GetLogout, GetToken } from "../Context/userProvider";
 import { addToGroupUrl, fetchGroupDetailUrl } from "../api/fetchLinks";
 import secureAxios from "../api/secureLinks";
 import { useNavigate, useParams } from "react-router-dom";
+import { replaceHttp } from "../Function/replaceHttp";
 
 function Join() {
   const Navigate = useNavigate();
@@ -67,7 +68,7 @@ function Join() {
               : "You are Invited to Join This Server"}
           </span>
           <div className="join-server-details">
-            <img className="server-pic" src={groupData.pic}></img>
+            <img className="server-pic" src={replaceHttp(groupData.pic)}></img>
             <div className="server-detail">
               <span className="server-name">{groupData.chatName}</span>
               <span className="member-total">

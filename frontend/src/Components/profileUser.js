@@ -1,5 +1,6 @@
 import { AiFillSetting } from "react-icons/ai";
 import { GetProfile } from "../Context/userProvider";
+import { replaceHttp } from "../Function/replaceHttp";
 
 function ProfileUser() {
   const [userProfile] = GetProfile();
@@ -10,7 +11,10 @@ function ProfileUser() {
         {userProfile?.pic == "" ? (
           <div className="profile-pic-img" />
         ) : (
-          <img src={userProfile?.pic ?? ""} className="profile-pic-img" />
+          <img
+            src={replaceHttp(userProfile?.pic ?? "")}
+            className="profile-pic-img"
+          />
         )}
         <div className="identity">
           <span className="name">{userProfile?.username ?? "User"}</span>

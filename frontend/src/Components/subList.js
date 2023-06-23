@@ -4,6 +4,7 @@ import ProfileUser from "./profileUser";
 import { useNavigate, useParams } from "react-router-dom";
 import secureAxios from "../api/secureLinks";
 import { fetchGroupDetailUrl } from "../api/fetchLinks";
+import { replaceHttp } from "../Function/replaceHttp";
 
 function SubList() {
   const Navigate = useNavigate();
@@ -99,7 +100,7 @@ function SubList() {
                     key={member.user._id}
                   >
                     <div className="friend-pic">
-                      <img src={member.user.pic}></img>
+                      <img src={replaceHttp(member.user.pic)}></img>
                     </div>
                     <span>{member.user.username}</span>
                   </button>
