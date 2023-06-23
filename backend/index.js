@@ -90,11 +90,10 @@ mongoose.connection.once("open", () => {
     });
 
     socket.on("disconnect", () => {
-      if (!Object.keys(clientConnect).length === 0) {
-        console.log(clientConnect);
+      if (Object.keys(clientConnect).length > 0) {
         console.log(
           `${clientConnect[socket.id].username}#${
-            clientConnect[socket.id].username
+            clientConnect[socket.id].code
           }(${socket.id}) has disconnected`
         );
         delete clientConnect[socket.id];

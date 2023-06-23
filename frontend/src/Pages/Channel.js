@@ -35,7 +35,6 @@ function Channel() {
     if (userProfile) {
       socket.emit("setup", userProfile);
       socket.on("connected", () => setSocketConnect(true));
-      console.log("emitted");
 
       return () => {
         socket.close();
