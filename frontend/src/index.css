@@ -1000,10 +1000,14 @@ input[type="range"]::-moz-range-progress {
   margin-top: auto !important;
 }
 .chat-group .chat-box {
-  padding: 0 20px;
+  padding: 5px 20px;
   color: #fff;
   display: flex;
-  margin-bottom: 15px;
+}
+.chat-box.up-margin {
+  margin-top: 15px;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 .chat-box .chat-pic {
   width: 40px;
@@ -1011,6 +1015,10 @@ input[type="range"]::-moz-range-progress {
   margin-right: 20px;
   border-radius: 50%;
   object-fit: cover;
+}
+.chat-box .chat-blank {
+  width: 40px;
+  margin-right: 20px;
 }
 .chat-box .chat-detail {
   display: flex;

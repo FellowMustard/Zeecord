@@ -150,28 +150,46 @@ function ChatSection({ socketConnect }) {
     channelName !== "@me" && (
       <main className="chat-section">
         <div className="chat-group">
-          {messageList.map((message) => {
+          {messageList.map((message, index) => {
+            const previousMesage = messageList[index - 1];
+            const sameAsPrevious =
+              previousMesage &&
+              dateConverter(message.createdAt) ===
+                dateConverter(previousMesage.createdAt);
             return (
-              <div key={message._id} className="chat-box">
-                <img
-                  className="chat-pic"
-                  src={replaceHttp(message.sender.pic)}
-                />
+              <div
+                key={message._id}
+                className={`chat-box ${!sameAsPrevious ? "up-margin" : ""}`}
+              >
+                {sameAsPrevious ? (
+                  <div className="chat-blank"></div>
+                ) : (
+                  <img
+                    className="chat-pic"
+                    src={replaceHttp(message.sender.pic)}
+                  />
+                )}
+
                 <section className="chat-detail">
-                  <div className="chat-detail-top">
-                    <span className="chat-sender">
-                      {message.sender.username}
-                    </span>
-                    <span className="chat-time">
-                      {dateConverter(message.createdAt)}
-                    </span>
-                  </div>
+                  {sameAsPrevious ? (
+                    <></>
+                  ) : (
+                    <div className="chat-detail-top">
+                      <span className="chat-sender">
+                        {message.sender.username}
+                      </span>
+                      <span className="chat-time">
+                        {dateConverter(message.createdAt)}
+                      </span>
+                    </div>
+                  )}
+
                   <div className="chat-content">{message.content}</div>
                 </section>
               </div>
             );
           })}
-          {previewMessage.map((message) => {
+          {previewMessage.map((message, index) => {
             return (
               <div key={message.unique} className="chat-box preview">
                 <img className="chat-pic" src={replaceHttp(userProfile.pic)} />
