@@ -30,7 +30,7 @@ const PORT = process.env.PORT || 5000;
 
 const baseUrl =
   process.env.NODE_ENV === "production"
-    ? "https://zeecord.vercel.app/"
+    ? "https://zeecord.vercel.app"
     : "http://localhost:3000";
 
 var clientConnect = {};
@@ -44,6 +44,9 @@ mongoose.connection.once("open", () => {
     pingTimeout: 60000,
     cors: {
       origin: baseUrl,
+      methods: ["GET", "POST"],
+      allowedHeaders: ["my-custom-header"],
+      credentials: true,
     },
   });
 
