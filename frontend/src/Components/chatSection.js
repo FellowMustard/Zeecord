@@ -5,6 +5,7 @@ import {
   GetToken,
   GetLogout,
   GetProfile,
+  GetSocket,
 } from "../Context/userProvider";
 import secureAxios from "../api/secureLinks";
 import { axios, messageUrl } from "../api/fetchLinks";
@@ -12,8 +13,9 @@ import socket from "../api/socket";
 import { v4 as uuidv4 } from "uuid";
 import { replaceHttp } from "../Function/replaceHttp";
 
-function ChatSection({ socketConnect }) {
+function ChatSection() {
   const Navigate = useNavigate();
+  const [socketConnection, setSocketConnection] = GetSocket();
   const [token, setToken] = GetToken();
   const [userProfile, setUserProfile] = GetProfile();
   const [, setLogout] = GetLogout();
@@ -109,7 +111,7 @@ function ChatSection({ socketConnect }) {
     };
 
     setMessageList([]);
-    if (channelName !== "@me" && socketConnect) {
+    if (channelName !== "@me" && socketConnection) {
       fetchData();
     }
     return () => {
@@ -121,11 +123,11 @@ function ChatSection({ socketConnect }) {
         socket.emit("leave chat", channelName);
       }
     };
-  }, [channelName, groupChatList, socketConnect]);
+  }, [channelName, groupChatList, socketConnection]);
 
   const handleMessageRecieved = useCallback(
     (message) => {
-      if (!channelName || channelName !== message.chat.link) {
+      if (!channelName) {
       } else {
         setMessageList((prevList) => [...prevList, message]);
       }
@@ -152,8 +154,10 @@ function ChatSection({ socketConnect }) {
         <div className="chat-group">
           {messageList.map((message, index) => {
             const previousMesage = messageList[index - 1];
+
             const sameAsPrevious =
               previousMesage &&
+              message.sender._id === previousMesage.sender._id &&
               dateConverter(message.createdAt) ===
                 dateConverter(previousMesage.createdAt);
             return (
@@ -190,16 +194,54 @@ function ChatSection({ socketConnect }) {
             );
           })}
           {previewMessage.map((message, index) => {
+            let previousMesage;
+            let anonID;
+            if (messageList.length === 0) {
+              previousMesage = false;
+            } else {
+              if (index === 0) {
+                previousMesage = messageList[messageList.length - 1];
+                anonID = previousMesage.sender._id;
+              } else {
+                previousMesage = previewMessage[index - 1];
+                anonID = userProfile._id;
+              }
+            }
+
+            const sameAsPrevious = previousMesage && userProfile._id === anonID;
+            dateConverter(Date.now()) ===
+              dateConverter(previousMesage.createdAt);
+
             return (
-              <div key={message.unique} className="chat-box preview">
-                <img className="chat-pic" src={replaceHttp(userProfile.pic)} />
+              <div
+                key={message.unique}
+                className={`chat-box preview ${
+                  !sameAsPrevious ? "up-margin" : ""
+                }`}
+              >
+                {sameAsPrevious ? (
+                  <div className="chat-blank"></div>
+                ) : (
+                  <img
+                    className="chat-pic"
+                    src={replaceHttp(userProfile.pic)}
+                  />
+                )}
+
                 <section className="chat-detail">
-                  <div className="chat-detail-top">
-                    <span className="chat-sender">{userProfile.username}</span>
-                    <span className="chat-time">
-                      {dateConverter(Date.now())}
-                    </span>
-                  </div>
+                  {sameAsPrevious ? (
+                    <></>
+                  ) : (
+                    <div className="chat-detail-top">
+                      <span className="chat-sender">
+                        {userProfile.username}
+                      </span>
+                      <span className="chat-time">
+                        {dateConverter(Date.now())}
+                      </span>
+                    </div>
+                  )}
+
                   <div className="chat-content">{message.content}</div>
                 </section>
               </div>

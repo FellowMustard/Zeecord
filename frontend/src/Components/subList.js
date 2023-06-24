@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { GetGroupChat, GetToken, GetLogout } from "../Context/userProvider";
 import ProfileUser from "./profileUser";
 import { useNavigate, useParams } from "react-router-dom";
 import secureAxios from "../api/secureLinks";
 import { fetchGroupDetailUrl } from "../api/fetchLinks";
 import { replaceHttp } from "../Function/replaceHttp";
+import socket from "../api/socket";
 
 function SubList() {
   const Navigate = useNavigate();
@@ -38,6 +39,7 @@ function SubList() {
           throw new Error();
         }
         setToken(updateResponse.token);
+        console.log(updateResponse);
         const groupDataList = [...groupChatList, updateResponse.data.groupChat];
         setGroupChatList(groupDataList);
         Navigate("/channel/" + channelName);
@@ -58,6 +60,32 @@ function SubList() {
       });
   };
 
+  useEffect(() => {
+    const handleNewMember = (data) => {
+      if (!channelName) {
+      } else {
+        const updatedUser = groupChatList.map((group) => {
+          if (group.link === channelName)
+            return {
+              ...group,
+              users: [...group.users, data.data],
+            };
+          return group;
+        });
+        console.log(updatedUser);
+        setGroupChatList(updatedUser);
+        setCurrGroupDetails((prevChat) => ({
+          ...prevChat,
+          users: [...prevChat.users, data.data],
+        }));
+      }
+    };
+    socket.on("new member", handleNewMember);
+    return () => {
+      socket.off("new member", handleNewMember);
+    };
+  }, [socket, channelName]);
+
   const handleMemberClick = (event) => {
     const button = event.target;
     const buttonRect = button.getBoundingClientRect();
@@ -68,9 +96,8 @@ function SubList() {
     const buttonPosition = buttonRect.top - containerRect.top;
     const containerHeight = containerRect.height;
     const percentagePosition = (buttonPosition / containerHeight) * 100;
-
-    console.log(`Button position: ${percentagePosition}%`);
   };
+
   return (
     <div className="sublist-container">
       <div className="sublist-head">

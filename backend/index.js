@@ -67,20 +67,24 @@ mongoose.connection.once("open", () => {
     });
 
     socket.on("join chat", (room) => {
-      socket.join(room);
-      console.log(
-        `${clientConnect[socket.id].username}#${
-          clientConnect[socket.id].code
-        }(${socket.id}) has joined room : ${room}`
-      );
+      try {
+        socket.join(room);
+        console.log(
+          `${clientConnect[socket.id].username}#${
+            clientConnect[socket.id].code
+          }(${socket.id}) has joined room : ${room}`
+        );
+      } catch (err) {}
     });
     socket.on("leave chat", (room) => {
-      socket.leave(room);
-      console.log(
-        `${clientConnect[socket.id].username}#${
-          clientConnect[socket.id].code
-        }(${socket.id}) has left room : ${room}`
-      );
+      try {
+        socket.leave(room);
+        console.log(
+          `${clientConnect[socket.id].username}#${
+            clientConnect[socket.id].code
+          }(${socket.id}) has left room : ${room}`
+        );
+      } catch (err) {}
     });
 
     socket.on("new message", (newMessage) => {
@@ -89,19 +93,22 @@ mongoose.connection.once("open", () => {
       console.timeEnd("send");
     });
 
+    socket.on("added group", (addedData) => {
+      const { data, link } = addedData;
+      socket.to(link).emit("new member", { data, link });
+    });
+
     socket.on("disconnect", () => {
-      if (Object.keys(clientConnect).length > 0) {
-        console.log(
-          `${clientConnect[socket.id].username}#${
-            clientConnect[socket.id].code
-          }(${socket.id}) has disconnected`
-        );
-        delete clientConnect[socket.id];
-      }
+      try {
+        if (Object.keys(clientConnect).length > 0) {
+          console.log(
+            `${clientConnect[socket.id].username}#${
+              clientConnect[socket.id].code
+            }(${socket.id}) has disconnected`
+          );
+          delete clientConnect[socket.id];
+        }
+      } catch (err) {}
     });
   });
-});
-
-mongoose.connection.once("error", (err) => {
-  console.log(err.red.bold);
 });

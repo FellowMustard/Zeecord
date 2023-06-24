@@ -4,17 +4,18 @@ import { addToGroupUrl, fetchGroupDetailUrl } from "../api/fetchLinks";
 import secureAxios from "../api/secureLinks";
 import { useNavigate, useParams } from "react-router-dom";
 import { replaceHttp } from "../Function/replaceHttp";
+import socket from "../api/socket";
 
 function Join() {
   const Navigate = useNavigate();
   const { groupLink } = useParams();
 
-  const [logout, setLogout] = GetLogout();
+  const [, setLogout] = GetLogout();
   const [token, setToken] = GetToken();
 
   const [groupData, setGroupData] = useState();
 
-  const [notFound, setNotFound] = useState(false);
+  const [, setNotFound] = useState(false);
   const [joined, setJoined] = useState(false);
 
   const handleNavigation = (link) => {
@@ -23,7 +24,8 @@ function Join() {
   const handleJoinGroup = async (link) => {
     await secureAxios(token)
       .put(addToGroupUrl, { chatID: groupData._id })
-      .then(() => {
+      .then((data) => {
+        socket.emit("added group", { data: data.data, link });
         Navigate("/channel/" + link);
       })
       .catch((error) => {

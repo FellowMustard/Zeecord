@@ -9,6 +9,7 @@ import {
 import { logoutUrl, axios } from "../api/fetchLinks";
 import { useNavigate, NavLink, useParams } from "react-router-dom";
 import { replaceHttp } from "../Function/replaceHttp";
+import socket from "../api/socket";
 
 function GroupList({ handleLogoutModal, handleCreateServerModal }) {
   const { channelName } = useParams();
@@ -19,6 +20,7 @@ function GroupList({ handleLogoutModal, handleCreateServerModal }) {
     localStorage.setItem("latest-group", groupLink);
     Navigate("/channel/" + groupLink);
   };
+
   return (
     <div className="group-tab">
       <div className="group-tab-top">

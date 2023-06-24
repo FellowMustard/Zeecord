@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   fetchChatUrl,
@@ -7,12 +13,15 @@ import {
   axios,
 } from "../api/fetchLinks";
 import secureAxios from "../api/secureLinks";
+import socket from "../api/socket";
 
 const tokenContext = createContext();
 const profileContext = createContext();
 const modalContext = createContext();
 const groupChatContext = createContext();
 const logoutContext = createContext();
+const socketContext = createContext();
+
 let currToken;
 
 export function GetToken() {
@@ -35,6 +44,10 @@ export function GetLogout() {
   return useContext(logoutContext);
 }
 
+export function GetSocket() {
+  return useContext(socketContext);
+}
+
 function UserProvider({ children }) {
   const location = useLocation();
   const Navigate = useNavigate();
@@ -47,6 +60,7 @@ function UserProvider({ children }) {
   });
   const [logout, setLogout] = useState(false);
   const [groupChatList, setGroupChatList] = useState();
+  const [socketConnection, setSocketConnection] = useState(false);
   const currPath = location.pathname;
 
   const navigationChecker = (current, latest) => {
@@ -93,10 +107,14 @@ function UserProvider({ children }) {
     }
   };
   const fetchData = async () => {
-    if (!currToken) {
+    if (currToken && !token) {
+      setToken(currToken);
+    } else if (!currToken && location.state?.token) {
       currToken = location.state?.token;
+      setToken(currToken);
+    } else {
+      currToken = token;
     }
-    setToken(currToken);
 
     if (currPath.startsWith("/channel") && !userProfile) {
       const response = await secureAxios(currToken).get(getProfileUrl);
@@ -130,12 +148,12 @@ function UserProvider({ children }) {
       }
     }
   };
+  const checkTokenAndFetchData = useCallback(async () => {
+    await checkToken();
+    fetchData();
+  }, [Navigate]);
 
   useEffect(() => {
-    const checkTokenAndFetchData = async () => {
-      await checkToken();
-      fetchData();
-    };
     checkTokenAndFetchData();
   }, [Navigate]);
 
@@ -147,6 +165,7 @@ function UserProvider({ children }) {
         setGroupChatList();
         setUserProfile();
         currToken = "";
+        console.log(location.state?.token, "sus");
         resolve();
       });
     };
@@ -155,17 +174,37 @@ function UserProvider({ children }) {
     }
   }, [logout]);
 
+  const socketChecking = useCallback(() => {
+    if (userProfile && !socketConnection) {
+      socket.emit("setup", userProfile);
+      socket.on("connected", () => setSocketConnection(true));
+
+      return () => {
+        socket.close();
+        setSocketConnection(false);
+      };
+    }
+  }, [userProfile]);
+
+  useEffect(() => {
+    socketChecking();
+  }, [userProfile]);
+
   return (
     <logoutContext.Provider value={[logout, setLogout]}>
       <tokenContext.Provider value={[token, setToken]}>
         <profileContext.Provider value={[userProfile, setUserProfile]}>
-          <modalContext.Provider value={[modal, setModal]}>
-            <groupChatContext.Provider
-              value={[groupChatList, setGroupChatList]}
-            >
-              {children}
-            </groupChatContext.Provider>
-          </modalContext.Provider>
+          <socketContext.Provider
+            value={[socketConnection, setSocketConnection]}
+          >
+            <modalContext.Provider value={[modal, setModal]}>
+              <groupChatContext.Provider
+                value={[groupChatList, setGroupChatList]}
+              >
+                {children}
+              </groupChatContext.Provider>
+            </modalContext.Provider>
+          </socketContext.Provider>
         </profileContext.Provider>
       </tokenContext.Provider>
     </logoutContext.Provider>

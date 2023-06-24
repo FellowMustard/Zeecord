@@ -1,4 +1,4 @@
-import { GetProfile, GetModal } from "../Context/userProvider";
+import { GetProfile, GetModal, GetSocket } from "../Context/userProvider";
 import GroupList from "../Components/groupList";
 import Logout from "../Modals/logout";
 import SubList from "../Components/subList";
@@ -7,10 +7,9 @@ import { useEffect, useState } from "react";
 import { GetNewUser } from "../Function/newUser";
 import ServerCreation from "../Modals/serverCreation";
 import ChatSection from "../Components/chatSection";
-import socket from "../api/socket";
 
 function Channel() {
-  const [socketConnect, setSocketConnect] = useState(false);
+  const [socketConnection, setSocketConnection] = GetSocket();
   const [modal, setModal] = GetModal();
   const currModal = { ...modal };
   const [userProfile] = GetProfile();
@@ -31,20 +30,9 @@ function Channel() {
     setModal(currModal);
   }, []);
 
-  useEffect(() => {
-    if (userProfile) {
-      socket.emit("setup", userProfile);
-      socket.on("connected", () => setSocketConnect(true));
-
-      return () => {
-        socket.close();
-      };
-    }
-  }, [userProfile]);
-
   return (
     userProfile &&
-    socketConnect && (
+    socketConnection && (
       <div className="main-body">
         <Modal />
         <div className="top-title">Zeecord</div>
@@ -55,7 +43,7 @@ function Channel() {
           />
           <div className="right-content">
             <SubList />
-            <ChatSection socketConnect={socketConnect} />
+            <ChatSection />
           </div>
         </div>
       </div>

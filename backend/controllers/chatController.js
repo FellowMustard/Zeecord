@@ -1,6 +1,7 @@
 const { randomizeString } = require("../middleware/randomizeString");
 const Chat = require("../models/Chat");
 const asyncHandler = require("express-async-handler");
+const User = require("../models/User");
 
 const createGroupChat = asyncHandler(async (req, res) => {
   const { chatName, pic } = req.body;
@@ -84,18 +85,26 @@ const addToGroupChat = asyncHandler(async (req, res) => {
 
   const joinedDate = new Date();
 
-  const addUser = await Chat.findByIdAndUpdate(
+  let addUser = await Chat.findByIdAndUpdate(
     chatID,
     {
       $push: { users: { user: req.id, joinedDate } },
     },
     { new: true }
-  ).populate("users", "-password");
+  );
+  addUser = await User.populate(addUser, {
+    path: "users.user",
+    select: "-password",
+  });
 
-  if (!addUser) {
+  const userObject = addUser.users.find(
+    (user) => user.user._id.toString() === req.id.toString()
+  );
+
+  if (!addUser || !userObject) {
     return res.status(400).json({ message: "Invalid Server Data!" });
   } else {
-    return res.status(200).json(addUser);
+    return res.status(200).json(userObject);
   }
 });
 
