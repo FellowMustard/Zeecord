@@ -196,21 +196,26 @@ function ChatSection() {
           {previewMessage.map((message, index) => {
             let previousMesage;
             let anonID;
+            let time;
+
             if (messageList.length === 0) {
               previousMesage = false;
             } else {
               if (index === 0) {
                 previousMesage = messageList[messageList.length - 1];
                 anonID = previousMesage.sender._id;
+                time = previousMesage.createdAt;
               } else {
                 previousMesage = previewMessage[index - 1];
                 anonID = userProfile._id;
+                time = Date.now();
               }
             }
 
-            const sameAsPrevious = previousMesage && userProfile._id === anonID;
-            dateConverter(Date.now()) ===
-              dateConverter(previousMesage.createdAt);
+            const sameAsPrevious =
+              previousMesage &&
+              userProfile._id === anonID &&
+              dateConverter(Date.now()) === dateConverter(time);
 
             return (
               <div
