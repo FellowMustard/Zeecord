@@ -34,6 +34,7 @@ const baseUrl =
     : "http://localhost:3000";
 
 var clientConnect = {};
+var typingData = [];
 mongoose.connection.once("open", () => {
   console.log(`Database is Connected`.cyan.bold);
   const server = app.listen(
@@ -86,6 +87,26 @@ mongoose.connection.once("open", () => {
           }(${socket.id}) has left room : ${room}`
         );
       } catch (err) {}
+    });
+
+    socket.on("typing", (data) => {
+      const { username, id, room } = data;
+      if (!typingData[room]) {
+        typingData[room] = [];
+      }
+      typingData[room].push({ username, id });
+      socket.to(room).emit("typing state", typingData[room]);
+    });
+
+    socket.on("stop typing", (data) => {
+      const { username, id, room } = data;
+      if (!typingData[room]) {
+        return;
+      }
+      typingData[room] = typingData[room].filter(
+        (typeData) => typeData.username !== username && typeData.id !== id
+      );
+      socket.to(room).emit("typing state", typingData[room]);
     });
 
     socket.on("new message", (newMessage) => {

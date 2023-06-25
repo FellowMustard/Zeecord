@@ -24,6 +24,8 @@ function ChatSection() {
   const [previewMessage, setPreviewMessage] = useState([]);
   const [messageContent, setMessageContent] = useState("");
   const [isProcessingMessage, setIsProcessingMessage] = useState(false);
+  const [typingData, setTypingData] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
   const [currentID, setCurrentID] = useState();
   const { channelName } = useParams();
   const scrollContentRef = useRef(null);
@@ -73,8 +75,10 @@ function ChatSection() {
 
   useEffect(() => {
     socket.on("message recieved", handleMessageRecieved);
+    socket.on("typing state", handlePeopleTyping);
     return () => {
       socket.off("message recieved", handleMessageRecieved);
+      socket.off("typing state", handlePeopleTyping);
     };
   }, [socket]);
 
@@ -112,6 +116,7 @@ function ChatSection() {
 
     setMessageList([]);
     if (channelName !== "@me" && socketConnection) {
+      setTypingData([]);
       fetchData();
     }
     return () => {
@@ -123,7 +128,7 @@ function ChatSection() {
         socket.emit("leave chat", channelName);
       }
     };
-  }, [channelName, groupChatList, socketConnection]);
+  }, [channelName, socketConnection]);
 
   const handleMessageRecieved = useCallback(
     (message) => {
@@ -134,6 +139,48 @@ function ChatSection() {
     },
     [channelName]
   );
+
+  const handlePeopleTyping = useCallback(
+    (type) => {
+      if (!type) {
+        setTypingData([]);
+        return;
+      }
+      const typeData = type.filter(
+        (data) =>
+          data.username !== userProfile.username && data.id !== userProfile._id
+      );
+      console.log(typeData);
+      setTypingData(typeData);
+    },
+    [channelName]
+  );
+
+  const handleTyping = (e) => {
+    setMessageContent(e.target.value);
+    if (!isTyping) {
+      setIsTyping(true);
+      socket.emit("typing", {
+        username: userProfile.username,
+        id: userProfile._id,
+        room: channelName,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (!isTyping) return;
+    const stopTyping = setTimeout(() => {
+      setIsTyping(false);
+      socket.emit("stop typing", {
+        username: userProfile.username,
+        id: userProfile._id,
+        room: channelName,
+      });
+    }, 3000);
+
+    return () => clearTimeout(stopTyping);
+  }, [messageContent]);
 
   const sendMessage = async (event) => {
     event.preventDefault();
@@ -258,13 +305,31 @@ function ChatSection() {
           <input
             className="typing-input"
             placeholder="Send Message"
-            onChange={(e) => setMessageContent(e.target.value)}
+            onChange={(e) => handleTyping(e)}
             value={messageContent}
           ></input>
+
+          <div className="typing-status">
+            <span className="name">
+              {typingData ? getTyping(typingData) : ""}
+            </span>
+            {typingData.length !== 0 && (
+              <span>
+                {typingData.length > 1 ? " are Typing..." : " is Typing..."}
+              </span>
+            )}
+          </div>
         </form>
       </main>
     )
   );
+}
+
+function getTyping(data) {
+  if (data.length === 0) return;
+  if (data.length >= 3) return "Several People are Typing...";
+  const usernames = data.map((item) => item.username).join(",");
+  return usernames;
 }
 
 function dateConverter(dateString) {
