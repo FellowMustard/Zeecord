@@ -128,7 +128,7 @@ function ChatSection() {
         socket.emit("leave chat", channelName);
       }
     };
-  }, [channelName, socketConnection]);
+  }, [channelName, socketConnection, groupChatList]);
 
   const handleMessageRecieved = useCallback(
     (message) => {
@@ -194,6 +194,8 @@ function ChatSection() {
       setPreviewMessage((prevPreview) => [...prevPreview, sendMessage]);
     }
   };
+
+  useEffect(() => {}, []);
 
   return (
     channelName !== "@me" && (

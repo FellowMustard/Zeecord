@@ -110,9 +110,7 @@ mongoose.connection.once("open", () => {
     });
 
     socket.on("new message", (newMessage) => {
-      console.time("send");
       socket.to(newMessage.chat.link).emit("message recieved", newMessage);
-      console.timeEnd("send");
     });
 
     socket.on("added group", (addedData) => {

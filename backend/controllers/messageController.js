@@ -16,7 +16,6 @@ const getMessage = asyncHandler(async (req, res) => {
 });
 
 const sendMessage = asyncHandler(async (req, res) => {
-  console.time("chat");
   const { content, chatID, unique, id } = req.body;
 
   if (!content || !chatID) {
@@ -49,7 +48,6 @@ const sendMessage = asyncHandler(async (req, res) => {
     path: "chat.users.user",
     select: "name pic",
   });
-  console.timeEnd("chat");
   return res.status(200).json(messageData);
 });
 
