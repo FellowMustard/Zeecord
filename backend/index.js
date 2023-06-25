@@ -55,7 +55,8 @@ mongoose.connection.once("open", () => {
       clientConnect[socket.id] = {
         username: userData.username,
         code: userData.code,
-        id: userData._id,
+        _id: userData._id,
+        socket: socket.id,
       };
       console.log(
         `${clientConnect[socket.id].username}#${
@@ -94,8 +95,12 @@ mongoose.connection.once("open", () => {
     });
 
     socket.on("added group", (addedData) => {
-      const { data, link } = addedData;
-      socket.to(link).emit("new member", { data, link });
+      try {
+        const { data, list, link } = addedData;
+        list.map((users) => {
+          socket.in(users.user._id).emit("new member", { data, link });
+        });
+      } catch {}
     });
 
     socket.on("disconnect", () => {

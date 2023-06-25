@@ -65,26 +65,29 @@ function SubList() {
       if (!channelName) {
       } else {
         const updatedUser = groupChatList.map((group) => {
-          if (group.link === channelName)
+          console.log(channelName);
+          if (group.link === data.link)
             return {
               ...group,
               users: [...group.users, data.data],
             };
           return group;
         });
-        console.log(updatedUser);
+
         setGroupChatList(updatedUser);
-        setCurrGroupDetails((prevChat) => ({
-          ...prevChat,
-          users: [...prevChat.users, data.data],
-        }));
+
+        if (data.link === channelName)
+          setCurrGroupDetails((prevChat) => ({
+            ...prevChat,
+            users: [...prevChat.users, data.data],
+          }));
       }
     };
     socket.on("new member", handleNewMember);
     return () => {
       socket.off("new member", handleNewMember);
     };
-  }, [socket, channelName]);
+  }, [channelName]);
 
   const handleMemberClick = (event) => {
     const button = event.target;

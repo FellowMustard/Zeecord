@@ -25,7 +25,11 @@ function Join() {
     await secureAxios(token)
       .put(addToGroupUrl, { chatID: groupData._id })
       .then((data) => {
-        socket.emit("added group", { data: data.data, link });
+        socket.emit("added group", {
+          data: data.data.joined,
+          list: data.data.userList,
+          link,
+        });
         Navigate("/channel/" + link);
       })
       .catch((error) => {

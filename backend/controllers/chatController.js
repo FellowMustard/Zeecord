@@ -104,7 +104,9 @@ const addToGroupChat = asyncHandler(async (req, res) => {
   if (!addUser || !userObject) {
     return res.status(400).json({ message: "Invalid Server Data!" });
   } else {
-    return res.status(200).json(userObject);
+    return res
+      .status(200)
+      .json({ joined: userObject, userList: addUser.users });
   }
 });
 
