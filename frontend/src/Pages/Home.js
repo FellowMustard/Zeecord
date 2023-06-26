@@ -12,22 +12,21 @@ import { GiBirdTwitter } from "react-icons/gi";
 import { AiFillGithub, AiFillWarning } from "react-icons/ai";
 import { motion, AnimatePresence } from "framer-motion";
 import DateTimePicker from "../Components/dateTimePicker";
-import { loginUrl, registerUrl, refreshUrl, axios } from "../api/fetchLinks";
-import { GetModal, GetToken } from "../Context/userProvider";
+import { loginUrl, registerUrl, axios } from "../api/fetchLinks";
+import { GetLoading, GetModal, GetToken } from "../Context/userProvider";
 import { useNavigate, useLocation } from "react-router-dom";
 import AuthLoading from "../Modals/authLoading";
 import { SetNewUser } from "../Function/newUser";
+import LoadingScreen from "../Components/loadingScreen";
 
 function Home() {
   const [forbidden, setForbidden] = useState(false);
   const location = useLocation();
-  const [loading, setLoading] = useState(false);
+  const [loading] = GetLoading();
 
   const [authLoading, setAuthLoading] = useState(false);
 
-  const [token, setToken] = GetToken();
   const [isLogin, setIsLogin] = useState(true);
-  const Navigate = useNavigate();
 
   const memoLink = useMemo(() => {
     return (
@@ -55,34 +54,34 @@ function Home() {
     }
   }, []);
 
-  return (
-    !loading && (
-      <main className="main-bg">
-        <div className="empty">{authLoading && <AuthLoading />}</div>
-        {memoBg}
-        <span className="app-title">
-          <GiBirdTwitter className="logo" />
-          <span>Zeecord</span>
-        </span>
-        <AnimatePresence>
-          {isLogin ? (
-            <Login
-              key="login"
-              setAuthLoading={setAuthLoading}
-              changePagesToLogin={changePagesToLogin}
-              forbidden={forbidden}
-            />
-          ) : (
-            <Register
-              key="register"
-              setAuthLoading={setAuthLoading}
-              changePagesToLogin={changePagesToLogin}
-            />
-          )}
-        </AnimatePresence>
-        {memoLink}
-      </main>
-    )
+  return loading ? (
+    <LoadingScreen />
+  ) : (
+    <main className="main-bg">
+      <div className="empty">{authLoading && <AuthLoading />}</div>
+      {memoBg}
+      <span className="app-title">
+        <GiBirdTwitter className="logo" />
+        <span>Zeecord</span>
+      </span>
+      <AnimatePresence>
+        {isLogin ? (
+          <Login
+            key="login"
+            setAuthLoading={setAuthLoading}
+            changePagesToLogin={changePagesToLogin}
+            forbidden={forbidden}
+          />
+        ) : (
+          <Register
+            key="register"
+            setAuthLoading={setAuthLoading}
+            changePagesToLogin={changePagesToLogin}
+          />
+        )}
+      </AnimatePresence>
+      {memoLink}
+    </main>
   );
 }
 

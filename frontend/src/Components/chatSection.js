@@ -116,6 +116,7 @@ function ChatSection() {
 
     setMessageList([]);
     if (channelName !== "@me" && socketConnection) {
+      setMessageContent("");
       setTypingData([]);
       fetchData();
     }
@@ -146,11 +147,21 @@ function ChatSection() {
         setTypingData([]);
         return;
       }
-      const typeData = type.filter(
+      const uniqueData = [];
+      const uniqueSet = new Set();
+
+      for (const item of type) {
+        const key = item.username + item.id;
+        if (!uniqueSet.has(key)) {
+          uniqueSet.add(key);
+          uniqueData.push(item);
+        }
+      }
+      const typeData = uniqueData.filter(
         (data) =>
           data.username !== userProfile.username && data.id !== userProfile._id
       );
-      console.log(typeData);
+
       setTypingData(typeData);
     },
     [channelName]
@@ -312,6 +323,13 @@ function ChatSection() {
           ></input>
 
           <div className="typing-status">
+            <div
+              className={`typing-dot ${typingData.length !== 0 ? "show" : ""}`}
+            >
+              <span className="dot"></span>
+              <span className="dot"></span>
+              <span className="dot"></span>
+            </div>
             <span className="name">
               {typingData ? getTyping(typingData) : ""}
             </span>

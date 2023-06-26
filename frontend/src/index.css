@@ -35,6 +35,51 @@ button {
   flex-direction: column;
   position: relative;
 }
+.loading-screen {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background-color: #292b2f;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: -1;
+  flex-direction: column;
+  gap: 20px;
+}
+.loading-screen .logo {
+  width: 200px;
+  height: 200px;
+  color: #fff;
+  position: relative;
+  font-size: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background-color: #383a40;
+  padding: 40px;
+}
+
+.loading-screen .logo::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(56, 58, 64, 0.5);
+  border-radius: 50%;
+  animation: pulse 1s linear 0.25s infinite;
+}
+.loading-screen .logo svg {
+  z-index: 10;
+}
+.loading-screen .loading-text {
+  font-size: 1.1rem;
+  color: #fff;
+}
 .moving-bg {
   z-index: 10;
   position: absolute;
@@ -678,17 +723,7 @@ input[type="range"]::-moz-range-progress {
 .add-image:hover .logo-text {
   color: #fff;
 }
-@keyframes dot {
-  0% {
-    transform: translateY(0%);
-  }
-  50% {
-    transform: translateY(50%);
-  }
-  100% {
-    transform: translateY(0%);
-  }
-}
+
 .main-body {
   width: 100vw;
   height: 100vh;
@@ -1068,9 +1103,34 @@ input[type="range"]::-moz-range-progress {
   height: 15px;
   color: #fff;
   font-size: 12px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
 }
 .typing-status .name {
   font-weight: 800;
+}
+.typing-status .typing-dot {
+  display: none;
+  gap: 5px;
+}
+.typing-dot.show {
+  display: flex;
+}
+.typing-dot .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  animation: dot-gradient 1.3s ease-in-out infinite;
+}
+.typing-dot .dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.typing-dot .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.typing-dot .dot:nth-child(3) {
+  animation-delay: 0.4s;
 }
 .join-card {
   background-color: #383a40;
@@ -1188,5 +1248,40 @@ input[type="range"]::-moz-range-progress {
   .login-card,
   .reg-card {
     position: relative;
+  }
+}
+@keyframes dot {
+  0% {
+    transform: translateY(0%);
+  }
+  50% {
+    transform: translateY(50%);
+  }
+  100% {
+    transform: translateY(0%);
+  }
+}
+@keyframes dot-gradient {
+  0% {
+    transform: scale(1) translateY(0%);
+    background-color: rgba(255, 255, 255, 0.415);
+  }
+  50% {
+    transform: scale(1.5) translateY(50%);
+    background-color: rgb(255, 255, 255);
+  }
+  100% {
+    transform: scale(1) translateY(0%);
+    background-color: rgba(255, 255, 255, 0.415);
+  }
+}
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
   }
 }

@@ -21,6 +21,7 @@ const modalContext = createContext();
 const groupChatContext = createContext();
 const logoutContext = createContext();
 const socketContext = createContext();
+const loadingContext = createContext();
 
 let currToken;
 
@@ -48,6 +49,10 @@ export function GetSocket() {
   return useContext(socketContext);
 }
 
+export function GetLoading() {
+  return useContext(loadingContext);
+}
+
 function UserProvider({ children }) {
   const location = useLocation();
   const Navigate = useNavigate();
@@ -58,6 +63,7 @@ function UserProvider({ children }) {
     modalPicEdit: false,
     modalServerCreation: false,
   });
+  const [loading, setLoading] = useState(true);
   const [logout, setLogout] = useState(false);
   const [groupChatList, setGroupChatList] = useState();
   const [socketConnection, setSocketConnection] = useState(false);
@@ -80,11 +86,14 @@ function UserProvider({ children }) {
         .get(refreshUrl + "?checker=true")
         .then((data) => {
           let navigateLocation;
+
           if (data.data.accessToken) {
             const state = { token: data.data.accessToken };
             currToken = data.data.accessToken;
             navigateLocation = navigationChecker(currPath, latestGroup);
+
             Navigate(navigateLocation, { state });
+
             return;
           }
 
@@ -94,12 +103,14 @@ function UserProvider({ children }) {
             navigateLocation = navigationChecker(currPath, latestGroup);
           }
           const state = { location: navigateLocation };
+
           Navigate("/", { state });
         })
         .catch((error) => {
           if (error.response.status === 401) {
             setLogout(true);
             const state = { forbidden: true };
+            setLoading(false);
             Navigate("/", { state });
             return;
           }
@@ -115,7 +126,6 @@ function UserProvider({ children }) {
     } else {
       currToken = token;
     }
-
     if (currPath.startsWith("/channel") && !userProfile) {
       const response = await secureAxios(currToken).get(getProfileUrl);
       if (response) {
@@ -127,6 +137,7 @@ function UserProvider({ children }) {
       if (!response) {
         setLogout(true);
         const state = { forbidden: true };
+        setLoading(false);
         Navigate("/", { state });
         return;
       }
@@ -139,9 +150,11 @@ function UserProvider({ children }) {
         setGroupChatList(chatData.data.groupChats);
         currToken = chatData.token;
         setLogout(false);
+        setLoading(false);
         if (!chatData) {
           setLogout(true);
           const state = { forbidden: true };
+          setLoading(false);
           Navigate("/", { state });
           return;
         }
@@ -149,8 +162,10 @@ function UserProvider({ children }) {
     }
   };
   const checkTokenAndFetchData = useCallback(async () => {
+    setLoading(true);
     await checkToken();
     fetchData();
+    setLoading(false);
   }, [Navigate]);
 
   useEffect(() => {
@@ -165,7 +180,6 @@ function UserProvider({ children }) {
         setGroupChatList();
         setUserProfile();
         currToken = "";
-        console.log(location.state?.token, "sus");
         resolve();
       });
     };
@@ -197,13 +211,15 @@ function UserProvider({ children }) {
           <socketContext.Provider
             value={[socketConnection, setSocketConnection]}
           >
-            <modalContext.Provider value={[modal, setModal]}>
-              <groupChatContext.Provider
-                value={[groupChatList, setGroupChatList]}
-              >
-                {children}
-              </groupChatContext.Provider>
-            </modalContext.Provider>
+            <loadingContext.Provider value={[loading, setLoading]}>
+              <modalContext.Provider value={[modal, setModal]}>
+                <groupChatContext.Provider
+                  value={[groupChatList, setGroupChatList]}
+                >
+                  {children}
+                </groupChatContext.Provider>
+              </modalContext.Provider>
+            </loadingContext.Provider>
           </socketContext.Provider>
         </profileContext.Provider>
       </tokenContext.Provider>
