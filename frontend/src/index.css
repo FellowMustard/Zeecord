@@ -22,7 +22,7 @@ button {
 
 /* Chrome, Edge, and Safari */
 *::-webkit-scrollbar {
-  width: 9px;
+  width: 4px;
 }
 
 *::-webkit-scrollbar-track {
@@ -776,7 +776,7 @@ input[type="range"]::-moz-range-progress {
 .group-tab {
   width: 70px;
   max-height: calc(100vh - 28px);
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
   align-items: center;
   padding: 10px 0;
