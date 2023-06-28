@@ -32,7 +32,7 @@ function Join() {
         });
         Navigate("/channel/" + link);
       })
-      .catch((error) => {
+      .catch(() => {
         setLogout(true);
         const state = { forbidden: true };
         Navigate("/", { state });

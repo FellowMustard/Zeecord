@@ -1,11 +1,4 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  useCallback,
-  useMemo,
-  React,
-} from "react";
+import { useEffect, useRef, useState, useCallback, React } from "react";
 import MovingBg from "../Components/MovingBg";
 import { IoMdInformationCircle } from "react-icons/io";
 import { GiBirdTwitter } from "react-icons/gi";
@@ -21,28 +14,12 @@ import LoadingScreen from "../Components/loadingScreen";
 
 function Home() {
   const [forbidden, setForbidden] = useState(false);
-  const location = useLocation();
-  const [loading] = GetLoading();
-
   const [authLoading, setAuthLoading] = useState(false);
-
   const [isLogin, setIsLogin] = useState(true);
 
-  const memoLink = useMemo(() => {
-    return (
-      <a
-        target="_blank"
-        className="github-href"
-        href="https://github.com/FellowMustard/zeecord"
-      >
-        <AiFillGithub className="logo" />
-      </a>
-    );
-  });
+  const location = useLocation();
 
-  const memoBg = useMemo(() => {
-    return <MovingBg />;
-  });
+  const [loading] = GetLoading();
 
   const changePagesToLogin = useCallback((action) => {
     setIsLogin(action);
@@ -59,7 +36,7 @@ function Home() {
   ) : (
     <main className="main-bg">
       <div className="empty">{authLoading && <AuthLoading />}</div>
-      {memoBg}
+      <MovingBg />
       <span className="app-title">
         <GiBirdTwitter className="logo" />
         <span>Zeecord</span>
@@ -80,14 +57,20 @@ function Home() {
           />
         )}
       </AnimatePresence>
-      {memoLink}
+      <a
+        target="_blank"
+        className="github-href"
+        href="https://github.com/FellowMustard/zeecord"
+      >
+        <AiFillGithub className="logo" />
+      </a>
     </main>
   );
 }
 
 function Login({ changePagesToLogin, forbidden, setAuthLoading }) {
   const location = useLocation();
-  const [token, setToken] = GetToken();
+  const [, setToken] = GetToken();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
